@@ -7,5 +7,6 @@
 
 Para executar o script do ep1:
 ```
+cd ep1
 lein run
 ```
