@@ -17,7 +17,7 @@
 
 ;; Transitive function using recursion -------------------------------------------------------
 
-(defn create-binary-matrix [n coords]
+(defn CreateBinaryMatrix [n coords]
   (let [matrix (vec (repeat n (vec (repeat n 0))))] ; cria matriz vazia
     (do 
       (def result matrix)
@@ -31,20 +31,15 @@
   )
 )
 
-
-(defn dot-product [x y]
-  (reduce + (map * x y)))
-
-(defn transpose
-  "returns the transposition of a `coll` of vectors"
-  [coll]
-  (apply map vector coll))
-
-(defn matrix-mult
+(defn MatrixMult
   [mat1 mat2]
-  (let [row-mult (fn [mat row]
-                   (map (partial dot-product row)
-                        (transpose mat)))]
+
+  (let [ 
+      Transpose #(apply map vector %)
+      DotProduct #(reduce + (map * %1 %2)) 
+      row-mult (fn [mat row](map (partial DotProduct row)
+                        (Transpose mat)))
+      ]
     (do
       (def result (map (partial row-mult mat2)
         mat1
@@ -55,7 +50,7 @@
   )
 )
 
-(defn get-binaty-matrix-index[n matrix]
+(defn GetBinatyMatrixIndex[n matrix]
     (do
       (def result [])
       (def i 0)
@@ -81,7 +76,7 @@
     result
 )
 
-(defn matrix-or [n matrix-a matrix-b]
+(defn MatrixOr [n matrix-a matrix-b]
     (do
       (def result (vec (repeat n (vec (repeat n 0)))) )
       (def i 0)
@@ -108,28 +103,27 @@
 )
 
 (defn GetTransitiveR [n R Rn]
-  
-  (def Rn_plus1 (matrix-mult R Rn) )
+  (def Rn_plus1 (MatrixMult R Rn) )
   (if (= Rn_plus1 Rn)
     Rn
-    (matrix-or n Rn (GetTransitiveR n R Rn_plus1) )
+    (MatrixOr n Rn (GetTransitiveR n R Rn_plus1) )
   )
 )
 
 (defn Transitive [n R]
-  ;; (def n 3)
-  (def R_binary (create-binary-matrix n R))
+  (def R_binary (CreateBinaryMatrix n R))
   (def R_final_binary (GetTransitiveR n R_binary R_binary) )
-  (def R_final (get-binaty-matrix-index n R_final_binary) )
+  (def R_final (GetBinatyMatrixIndex n R_final_binary) )
   R_final
 )
 
 ;; Main function -----------------------------------------------------------------------------
 (defn -main []
-  (def n 3)
 
   (def A [1 2 3])
   (println "A:" A)
+  
+  (def n (count A))
 
   (def R
     (CreateR [1, 2, 3] 
