@@ -15,59 +15,141 @@
   )
 )
 
-;; Transitive function without recursion -----------------------------------------------------
-(defn Transitive [R]
-  (reduce (fn [result x]
-            (let [transitive (filter #(= (second %) x) R)]
-              (if (empty? transitive)
-                result
-                (conj result (first (first transitive)))))) R R)
-)
-
 ;; Transitive function using recursion -------------------------------------------------------
-(defn acessiveis [x R]
-  (map second (filter #(= x (first %)) R)))
 
-(defn transitivo-rec [x R visitados]
-  (if (contains? visitados x)
-    []
-    (let [proximos (set (mapcat #(transitivo-rec % R (conj visitados x)) (acessiveis x R)))]
-      (conj proximos x))))
-
-(defn TransitiveRecursive [R]
-  (apply clojure.set/union (map #(transitivo-rec % R []) R)))
-
-;; Global variables --------------------------------------------------------------------------
-(def A [1 2 3 ])
-
-(def R
-  (CreateR [1, 2, 3] 
-            [2, 3, 3])
+(defn create-binary-matrix [n coords]
+  (let [matrix (vec (repeat n (vec (repeat n 0))))] ; cria matriz vazia
+    (do 
+      (def result matrix)
+      (doseq [[x y] coords]
+        (do
+          (def result (assoc-in result [(- x 1) (- y 1)] 1))
+        )
+      )
+    )
+    result
+  )
 )
 
-(def PossibleReflectiveValues
-  (CreateR A A) 
+
+(defn dot-product [x y]
+  (reduce + (map * x y)))
+
+(defn transpose
+  "returns the transposition of a `coll` of vectors"
+  [coll]
+  (apply map vector coll))
+
+(defn matrix-mult
+  [mat1 mat2]
+  (let [row-mult (fn [mat row]
+                   (map (partial dot-product row)
+                        (transpose mat)))]
+    (do
+      (def result (map (partial row-mult mat2)
+        mat1
+      ))
+     (def result  (vec (map vec result)) )
+    )
+    result
+  )
 )
 
-(def ReflectiveR
-  ( CreateReflectiveR R PossibleReflectiveValues )
+(defn get-binaty-matrix-index[n matrix]
+    (do
+      (def result [])
+      (def i 0)
+      (def j 0)
+      (def matrix2 '[[0 0 1] [0 0 1] [0 0 1]])
+      (while (< i n)
+        (do
+          (while (< j n)
+            (do
+              (if (= 1 (get-in matrix [i j]))
+                (do
+                  (def result (conj result [(+ i 1) (+ j 1)]))
+                )
+              )
+              (def j (+ j 1))
+            )
+          )
+          (def j 0)
+          (def i (+ i 1))
+        )
+      )
+  )
+    result
 )
 
-(def TransitiveR
-  ( Transitive R )
+(defn matrix-or [n matrix-a matrix-b]
+    (do
+      (def result (vec (repeat n (vec (repeat n 0)))) )
+      (def i 0)
+      (def j 0)
+      (def matrix2 '[[0 0 1] [0 0 1] [0 0 1]])
+      (while (< i n)
+        (do
+          (while (< j n)
+            (do
+              (if (or (= 1 (get-in matrix-a [i j])) (= 1 (get-in matrix-b [i j])))
+                (do
+                  (def result (assoc-in result [i j] 1))
+                )
+              )
+              (def j (+ j 1))
+            )
+          )
+          (def j 0)
+          (def i (+ i 1))
+        )
+      )
+  )
+    result
 )
 
-(def TransitiveRecursiveR
-  ( TransitiveRecursive R )
+(defn GetTransitiveR [n R Rn]
+  
+  (def Rn_plus1 (matrix-mult R Rn) )
+  (if (= Rn_plus1 Rn)
+    Rn
+    (matrix-or n Rn (GetTransitiveR n R Rn_plus1) )
+  )
+)
+
+(defn Transitive [n R]
+  ;; (def n 3)
+  (def R_binary (create-binary-matrix n R))
+  (def R_final_binary (GetTransitiveR n R_binary R_binary) )
+  (def R_final (get-binaty-matrix-index n R_final_binary) )
+  R_final
 )
 
 ;; Main function -----------------------------------------------------------------------------
 (defn -main []
+  (def n 3)
+
+  (def A [1 2 3])
   (println "A:" A)
+
+  (def R
+    (CreateR [1, 2, 3] 
+              [2, 3, 3])
+  )
   (println "R:" R)
-  (println "Possible Reflective Values: " PossibleReflectiveValues)
+
+  (def PossibleReflectiveValues
+    (CreateR A A) 
+  )
+  ;; (println "Possible Reflective Values: " PossibleReflectiveValues)
+
+  (def ReflectiveR
+    ( CreateReflectiveR R PossibleReflectiveValues )
+  )
   (println "Reflective(R):" ReflectiveR)
-  (println "Transitive(R) - Without Recursive:" TransitiveR)
-  (println "Transitive(R) - With    Recursive:" TransitiveRecursiveR)
+
+  (def TransitiveR
+    ( Transitive n R)
+  )
+  (println "Transitive(R):" TransitiveR)
 )
 
