@@ -10,7 +10,8 @@
 )
 
 (defn CreateReflectiveR[R PossibleReflectiveValues]
-  (let [return (remove #(contains? (set R) %) PossibleReflectiveValues)]
+  (def DataRemover (fn [x] (contains? (set R) x) ) )
+  (let [return (DataRemover PossibleReflectiveValues)]
   return
   )
 )
