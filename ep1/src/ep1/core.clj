@@ -56,7 +56,6 @@
       (def result [])
       (def i 0)
       (def j 0)
-      (def matrix2 '[[0 0 1] [0 0 1] [0 0 1]])
       (while (< i n)
         (do
           (while (< j n)
