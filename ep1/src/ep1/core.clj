@@ -51,6 +51,31 @@
   )
 )
 
+(defn TranformMatrixInBinaryMatrix [n matrix]
+  (do
+    (def result (vec (repeat n (vec (repeat n 0)))) )
+    (def i 0)
+    (def j 0)
+    (while (< i n)
+      (do
+        (while (< j n)
+          (do
+            (if (> (get-in matrix [i j]) 0)
+              (do
+                (def result (assoc-in result [i j] 1))
+              )
+            )
+            (def j (+ j 1))
+          )
+        )
+        (def j 0)
+        (def i (+ i 1))
+      )
+    )
+  )
+  result
+)
+
 (defn GetBinatyMatrixIndex[n matrix]
     (do
       (def result [])
@@ -103,7 +128,7 @@
 )
 
 (defn GetTransitiveR [n R Rn]
-  (def Rn_plus1 (MatrixMult R Rn) )
+  (def Rn_plus1 (TranformMatrixInBinaryMatrix n (MatrixMult R Rn)) )
   (if (= Rn_plus1 Rn)
     Rn
     (MatrixOr n Rn (GetTransitiveR n R Rn_plus1) )
@@ -122,19 +147,18 @@
 
   (def A [1 2 3])
   (println "A:" A)
-  
+
   (def n (count A))
 
   (def R
-    (CreateR [1, 2, 3] 
-              [2, 3, 3])
+    (CreateR [1 1 2 3] 
+              [1 2 3 1])
   )
   (println "R:" R)
 
   (def PossibleReflectiveValues
     (CreateR A A) 
   )
-  ;; (println "Possible Reflective Values: " PossibleReflectiveValues)
 
   (def ReflectiveR
     ( CreateReflectiveR R PossibleReflectiveValues )
