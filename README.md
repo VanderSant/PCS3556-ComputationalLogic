@@ -10,3 +10,9 @@ Para executar o script do ep1:
 cd ep1
 lein run
 ```
+
+Para executar o script do ep2:
+```
+cd ep2
+lein run
+```
