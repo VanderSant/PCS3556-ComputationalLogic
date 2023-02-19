@@ -6,13 +6,13 @@
 ;; Basix functions ----------------------------------------------------------------------------
 (defn CreateR [i_array j_array]
   (let [ result (map vector i_array j_array) ]
-  result)
+  (vec result))
 )
 
 (defn CreateReflectiveR[R PossibleReflectiveValues]
   (def DataRemoveCondition (fn [x] (contains? (set R) x)) )
   (let [return (remove DataRemoveCondition PossibleReflectiveValues)]
-  return
+  (clojure.set/union R return)
   )
 )
 
@@ -139,11 +139,11 @@
   (def ReflectiveR
     ( CreateReflectiveR R PossibleReflectiveValues )
   )
-  (println "Reflective(R):" ReflectiveR)
+  (println "Fecho Reflexivo  de R | Reflective(R):" ReflectiveR)
 
   (def TransitiveR
     ( Transitive n R)
   )
-  (println "Transitive(R):" TransitiveR)
+  (println "Fecho Transitivo de R | Transitive(R):" TransitiveR)
 )
 
