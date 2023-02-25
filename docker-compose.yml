@@ -1,0 +1,11 @@
+version: "3.7"
+
+services:
+  pcs3556_clojure:
+    container_name: pcs3556_computational_logic
+    build: .
+    restart: unless-stopped
+    volumes:
+      - ./assets:/assets
+    ports:
+      - 5000:5000
