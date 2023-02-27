@@ -6,10 +6,6 @@
 ;; Basix functions --------------------
 
 (defn GetGramRule [rules pos]
-      (def simbol 
-            (get (get rules pos) 0)
-      )
-
       (let 
             [simbol (get (get rules pos) 0)
              simbol_values (get (get rules pos) 1)
@@ -19,7 +15,7 @@
       )
 )
 
-;; Chair recognition functions --------------------
+;; Chain recognition functions --------------------
 
 (defn GetApplyRuleInElement [rules elem]
       (do
@@ -37,13 +33,13 @@
       values
 )
 
-(defn GetApplyRulesInChair 
-      ([rules, chain] (GetApplyRulesInChair rules, chain, 0, []))
-      ([rules, chain, index] (GetApplyRulesInChair rules, chain, index, []))
-      ([rules, chain, index, chair_applied]
+(defn GetApplyRulesInChain 
+      ([rules, chain] (GetApplyRulesInChain rules, chain, 0, []))
+      ([rules, chain, index] (GetApplyRulesInChain rules, chain, index, []))
+      ([rules, chain, index, chain_applied]
 
             (if (= index (count chain))
-                  chair_applied
+                  chain_applied
                   (do
                         (def curr_elem (chain index))
                         
@@ -57,9 +53,9 @@
                                     )
                               )
                         )
-                        (def new_chair_applied (vec (concat chair_applied new_transf)))
+                        (def new_chain_applied (vec (concat chain_applied new_transf)))
 
-                        (GetApplyRulesInChair rules chain (+ index 1) new_chair_applied)
+                        (GetApplyRulesInChain rules chain (+ index 1) new_chain_applied)
                   )
             )
       )
@@ -72,7 +68,7 @@
                   generated_chains
                   (do
                         (def chain_applied_changes
-                              (GetApplyRulesInChair
+                              (GetApplyRulesInChain
                                     rules     
                                     (get generated_chains index)
                               )
@@ -88,8 +84,8 @@
                                     )
                               )     
                         )
-                        (def new_possible_chair (vec (concat generated_chains new_generated_chain)))
-                        (GenerateAllPossibleChains rules, max_size, (+ index 1), new_possible_chair)
+                        (def new_possible_chain (vec (concat generated_chains new_generated_chain)))
+                        (GenerateAllPossibleChains rules, max_size, (+ index 1), new_possible_chain)
                   )
             )
       )
@@ -110,8 +106,8 @@
       (println (GetApplyRuleInElement rules elem))
 )
 
-(defn TestGetApplyRulesInChair [rules chain]
-      (println (GetApplyRulesInChair rules chain))
+(defn TestGetApplyRulesInChain [rules chain]
+      (println (GetApplyRulesInChain rules chain))
 )
 
 (defn TestGenerateAllPossibleChains [rules chain]

@@ -47,7 +47,7 @@
   )
 )
 
-(deftest GetApplyRulesInChairTest []
+(deftest GetApplyRulesInChainTest []
   (let [
       rules_test0 [
         [ "S" ["a", "A", "S"]  ]
@@ -60,8 +60,8 @@
         [ "S" ["a"]            ]
       ]
 
-      value_result0 (ep2.core/GetApplyRulesInChair rules_test0 ["S", "A"])
-      value_result1 (ep2.core/GetApplyRulesInChair rules_test1 ["a", "A", "S"])
+      value_result0 (ep2.core/GetApplyRulesInChain rules_test0 ["S", "A"])
+      value_result1 (ep2.core/GetApplyRulesInChain rules_test1 ["a", "A", "S"])
     ]
   
     (testing "Testando a função GetGramRuleTest"
