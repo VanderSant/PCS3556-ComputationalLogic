@@ -1,9 +1,9 @@
-;; Defintion of namespace -------------
+;; Definition of namespace -------------
 (ns ep2.core
       (:gen-class)
       (:require [clojure.set :as set]))
 
-;; Basix functions --------------------
+;; Basic functions --------------------
 
 (defn GetGramRule [rules pos]
       (let 
@@ -93,25 +93,11 @@
 
 (defn CheckIfChainIsAcceped [rules chain]
       (let [max_size (count chain)]
-            (println "max_size (l): " max_size)
+            ;; (println "max_size (l): " max_size)
             (def all_possibilities (GenerateAllPossibleChains rules max_size))
             (def result (contains? (set all_possibilities) chain) )
       )
       result
-)
-
-;; Test function ----------------------
-(defn TestGetApplyRuleInElement[rules]
-      (def elem "A")
-      (println (GetApplyRuleInElement rules elem))
-)
-
-(defn TestGetApplyRulesInChain [rules chain]
-      (println (GetApplyRulesInChain rules chain))
-)
-
-(defn TestGenerateAllPossibleChains [rules chain]
-      (println (GenerateAllPossibleChains rules 3))
 )
 
 ;; Main function ----------------------
@@ -127,7 +113,7 @@
       (println "Regras gramaticais: " gram_rules)
 
       (def chain_to_be_recognized
-            ["a", "a","a","a"]
+            ["b", "a"]
       )
       (println "Cadeia para ser reconhecida (w): " chain_to_be_recognized)
 
