@@ -7,7 +7,7 @@
 
 Criei e execute o container docker, que já tem tudo instalado:
 ```sh
-chmod +x run_deploy.sh
+chmod +x run_docker.sh
 ./run_deploy
 ```
 
