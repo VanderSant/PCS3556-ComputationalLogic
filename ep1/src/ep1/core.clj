@@ -37,43 +37,28 @@
 
   (let [ 
       Transpose #(apply map vector %)
-      DotProduct #(reduce + (map * %1 %2)) 
-      row-mult (fn [mat row](map (partial DotProduct row)
-                        (Transpose mat)))
+      DotProduct #(reduce + (map * %1 %2)) ;; product all values and sum (produto escalar)
+      RowMult (fn [mat row] (
+                  map (partial DotProduct row) (Transpose mat)
+                )
+              )
+
+      new_matrix (map (partial RowMult mat2) mat1 )
+      result  (vec (map vec new_matrix))
       ]
-    (do
-      (def result (map (partial row-mult mat2)
-        mat1
-      ))
-     (def result  (vec (map vec result)) )
-    )
     result
   )
 )
 
-(defn TranformMatrixInBinaryMatrix [n matrix]
-  (do
-    (def result (vec (repeat n (vec (repeat n 0)))) )
-    (def i 0)
-    (def j 0)
-    (while (< i n)
-      (do
-        (while (< j n)
-          (do
-            (if (> (get-in matrix [i j]) 0)
-              (do
-                (def result (assoc-in result [i j] 1))
-              )
-            )
-            (def j (+ j 1))
-          )
-        )
-        (def j 0)
-        (def i (+ i 1))
-      )
-    )
+(defn TranformMatrixInBinaryMatrix [matrix]
+  (let [
+    ChangeOneValueToBinary #(if (> % 0) 1 0)
+    ChangeOneRowToBinary #(vec (map ChangeOneValueToBinary %))
+    ChangeMatrixToBinary #(vec (map ChangeOneRowToBinary %))
+    result (ChangeMatrixToBinary matrix)
+  ]
+    result
   )
-  result
 )
 
 (defn GetBinatyMatrixIndex[n matrix]
@@ -101,37 +86,22 @@
     result
 )
 
-(defn MatrixOr [n matrix-a matrix-b]
-    (do
-      (def result (vec (repeat n (vec (repeat n 0)))) )
-      (def i 0)
-      (def j 0)
-      (def matrix2 '[[0 0 1] [0 0 1] [0 0 1]])
-      (while (< i n)
-        (do
-          (while (< j n)
-            (do
-              (if (or (= 1 (get-in matrix-a [i j])) (= 1 (get-in matrix-b [i j])))
-                (do
-                  (def result (assoc-in result [i j] 1))
-                )
-              )
-              (def j (+ j 1))
-            )
-          )
-          (def j 0)
-          (def i (+ i 1))
-        )
-      )
-  )
+(defn MatrixOr [matrix_a matrix_b]
+  (let [
+    TwoBitOr #(if (or (= 1 %1) (= 1 %2)) 1 0)
+    TwoRowOr (fn [row1 row2] (vec (map TwoBitOr row1 row2 )) )
+    GetMatrixOr (fn [mat1 mat2] (vec (map TwoRowOr mat1 mat2 )) )
+    result (GetMatrixOr matrix_a matrix_b)
+  ]
     result
+  )
 )
 
 (defn GetTransitiveR [n R Rn]
-  (def Rn_plus1 (TranformMatrixInBinaryMatrix n (MatrixMult R Rn)) )
+  (def Rn_plus1 (TranformMatrixInBinaryMatrix (MatrixMult R Rn)) )
   (if (= Rn_plus1 Rn)
     Rn
-    (MatrixOr n Rn (GetTransitiveR n R Rn_plus1) )
+    (MatrixOr Rn (GetTransitiveR n R Rn_plus1) )
   )
 )
 
