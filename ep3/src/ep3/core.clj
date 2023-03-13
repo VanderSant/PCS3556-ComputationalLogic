@@ -58,7 +58,7 @@
             
                   result (some #(contains? (set accept_states) %) final_states)
             ]
-            result 
+            [result deterministic_transistions final_states]
       )
 )
 
@@ -85,15 +85,17 @@
 
                   input ["a" "b" "c"]
 
-                  result (SolveFiniteAutomaton states actions next_states accept_states input)
+                  [result deterministic_transistions final_states] (SolveFiniteAutomaton states actions next_states accept_states input)
             ]
             (do   
                   (println "--- Deterministic Finite Automaton ---")
-                  (println "states" states)
-                  (println "actions" actions)
-                  (println "next states" next_states)
-                  (println "accept states" accept_states)
-                  (println "input states" input)
+                  (println "States = " states)
+                  (println "Actions = " actions)
+                  (println "Next states = " next_states)
+                  (println "Accept states = " accept_states)
+                  (println "Input states = " input)
+                  (println "Transitions = " (reverse deterministic_transistions))
+                  (println "Final States = " final_states)
                   (if result
                         (println "Automata aceita! :)")
                         (println "Automata Não foi aceita :(")
@@ -126,15 +128,17 @@
 
                   input ["a","b","c"]
                   
-                  result (SolveFiniteAutomaton states actions next_states accept_states input)
+                  [result deterministic_transistions final_states] (SolveFiniteAutomaton states actions next_states accept_states input)
             ]
             (do   
                   (println "--- Non Deterministic Finite Automaton ---")
-                  (println "states" states)
-                  (println "actions" actions)
-                  (println "next states" next_states)
-                  (println "accept states" accept_states)
-                  (println "input states" input)
+                  (println "States = " states)
+                  (println "Actions = " actions)
+                  (println "Next states = " next_states)
+                  (println "Accept states = " accept_states)
+                  (println "Input states = " input)
+                  (println "Transitions = " (reverse deterministic_transistions))
+                  (println "Final States = " final_states)
                   (if result
                         (println "Automata aceita! :)")
                         (println "Automata Não foi aceita :(")

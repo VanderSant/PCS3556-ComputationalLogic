@@ -89,13 +89,13 @@
       TestFunction (partial ep3.core/SolveFiniteAutomaton states actions next_states accept_states)
 
       input0 ["a","b","c"]
-      result0 (TestFunction input0)
+      [result0 _ _] (TestFunction input0)
 
       input1 ["a","a","a"]
-      result1 (TestFunction input1)
+      [result1 _ _] (TestFunction input1)
 
       input2 ["a","b"]
-      result2 (TestFunction input2)
+      [result2 _ _] (TestFunction input2)
     ]
   
     (testing "Testando a função CreateR"
@@ -186,13 +186,13 @@
       TestFunction (partial ep3.core/SolveFiniteAutomaton states actions next_states accept_states)
 
       input0 ["b" "a" "a"]
-      result0 (TestFunction input0)
+      [result0 _ _] (TestFunction input0)
 
       input1 ["a" "b"]
-      result1 (TestFunction input1)
+      [result1 _ _] (TestFunction input1)
 
       input2 ["a" "a" "a"]
-      result2 (TestFunction input2)
+      [result2 _ _] (TestFunction input2)
     ]
   
     (testing "Testando a função CreateR"
