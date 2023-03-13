@@ -70,7 +70,7 @@
 
 (deftest SolveDeterministicFiniteAutomatonTest []
   (let [
-      states  ["Q1""Q2""Q3"]
+      states  ["Q1" "Q2" "Q3"]
 
       actions [
                 ["a" "b" "c" "d"]
@@ -167,7 +167,7 @@
 
 (deftest SolveNonDeterministicFiniteAutomatonTest []
   (let [
-      states  ["Q1""Q2""Q3"]
+      states  ["Q1" "Q2" "Q3"]
 
       actions [
                 ["a" "a" "b" "d" "d"]

@@ -33,12 +33,12 @@
 
 (defn GetResultState 
       ([matrix input] (GetResultState matrix input "Q1"))
-      ([matrix input actual_state]
+      ([matrix input current_state]
 
             (let
                   [
                         new_action (first input)
-                        next_states (GetNextState matrix actual_state new_action)
+                        next_states (GetNextState matrix current_state new_action)
                         new_input (rest input)
                   ]
                   (if (not (empty? new_input))
@@ -81,7 +81,7 @@
                         ["Q2" "Q3" "Q3" "Q3"]
                   ]
 
-                  accept_states ["Q2 ""Q3"]
+                  accept_states ["Q2" "Q3"]
 
                   input ["a" "b" "c"]
 
