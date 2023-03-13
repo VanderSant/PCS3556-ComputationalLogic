@@ -3,7 +3,8 @@
       (:gen-class)
       (:require [clojure.set :as set]))
 
-;; Generical functions --------------------
+;; Finite Automaton Functions --------------------
+
 (defn GetNextState [matrix state action]
       (let 
             [
@@ -13,47 +14,55 @@
       )
 )
 
-;; Deterministic functions --------------------
-(defn GenDeterministicTransistions [states actions next_states]
+(defn GenTransistions [states actions next_states]
       (let
-            [
-                  actions->next_state (vec (map zipmap actions next_states) )
+            [     
+                  GroupByKey (fn [chaves valores]
+                        (->>  (map vector chaves valores)
+                              (group-by first)
+                              (map (fn [[k vs]] [k (vec (map second vs))]))
+                              (into {})
+                        )
+                  )
+                  actions->next_state (vec (map GroupByKey actions next_states) )
                   state->action (zipmap states actions->next_state)
             ]
-
             state->action
       )
 )
 
-(defn GetDeterministicResultState 
-      ([matrix input] (GetDeterministicResultState matrix input "Q1"))
+(defn GetResultState 
+      ([matrix input] (GetResultState matrix input "Q1"))
       ([matrix input actual_state]
 
             (let
                   [
                         new_action (first input)
-                        next_state (GetNextState matrix actual_state new_action)
+                        next_states (GetNextState matrix actual_state new_action)
                         new_input (rest input)
                   ]
                   (if (not (empty? new_input))
-                        (GetDeterministicResultState matrix new_input next_state)
-                        next_state
+                        (vec (distinct (flatten (map (partial GetResultState matrix new_input) next_states) )))
+                        next_states
                   )
             )
       )
 
 )
 
-(defn SolveDeterministicFiniteAutomaton [states actions next_states accept_states input]
+(defn SolveFiniteAutomaton [states actions next_states accept_states input]
       (let
             [
-                  deterministic_transistions (GenDeterministicTransistions states actions next_states)
-                  final_state (GetDeterministicResultState deterministic_transistions input)
-                  result (contains? (set accept_states) final_state)
+                  deterministic_transistions (GenTransistions states actions next_states)
+                  final_states (GetResultState deterministic_transistions input)
+            
+                  result (some #(contains? (set accept_states) %) final_states)
             ]
             result 
       )
 )
+
+;; Main functions --------------------
 
 (defn MainDeterministic []
       (let
@@ -76,7 +85,7 @@
 
                   input ["a" "b" "c"]
 
-                  result (SolveDeterministicFiniteAutomaton states actions next_states accept_states input)
+                  result (SolveFiniteAutomaton states actions next_states accept_states input)
             ]
             (do   
                   (println "--- Deterministic Finite Automaton ---")
@@ -95,55 +104,6 @@
       )
 )
 
-;; Non Deterministic functions --------------------
-
-(defn GenNonDeterministicTransistions [states actions next_states]
-      (let
-            [     
-                  GroupByKey (fn [chaves valores]
-                        (->>  (map vector chaves valores)
-                              (group-by first)
-                              (map (fn [[k vs]] [k (vec (map second vs))]))
-                              (into {})
-                        )
-                  )
-                  actions->next_state (vec (map GroupByKey actions next_states) )
-                  state->action (zipmap states actions->next_state)
-            ]
-            state->action
-      )
-)
-
-(defn GetNonDeterministicResultState 
-      ([matrix input] (GetNonDeterministicResultState matrix input "Q1"))
-      ([matrix input actual_state]
-
-            (let
-                  [
-                        new_action (first input)
-                        next_states (GetNextState matrix actual_state new_action)
-                        new_input (rest input)
-                  ]
-                  (if (not (empty? new_input))
-                        (vec (distinct (flatten (map (partial GetNonDeterministicResultState matrix new_input) next_states) )))
-                        next_states
-                  )
-            )
-      )
-
-)
-
-(defn SolveNonDeterministicFiniteAutomaton [states actions next_states accept_states input]
-      (let
-            [
-                  deterministic_transistions (GenNonDeterministicTransistions states actions next_states)
-                  final_states (GetNonDeterministicResultState deterministic_transistions input)
-            
-                  result (some #(contains? (set accept_states) %) final_states)
-            ]
-            result 
-      )
-)
 
 (defn MainNonDeterministic []
       (let
@@ -162,11 +122,11 @@
                         ["Q2" "Q3" "Q3" "Q3"]
                   ]
 
-                  accept_states ["Q2""Q3"]
+                  accept_states ["Q2" "Q3"]
 
                   input ["a","b","c"]
                   
-                  result (SolveNonDeterministicFiniteAutomaton states actions next_states accept_states input)
+                  result (SolveFiniteAutomaton states actions next_states accept_states input)
             ]
             (do   
                   (println "--- Non Deterministic Finite Automaton ---")
