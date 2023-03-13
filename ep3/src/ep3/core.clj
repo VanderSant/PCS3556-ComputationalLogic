@@ -77,7 +77,7 @@
 
                   next_states [
                         ["Q1" "Q2" "Q2" "Q3"]
-                        ["Q2" "Q2" "Q3" "Q1"]
+                        ["Q2" "Q2" "Q1" "Q1"]
                         ["Q2" "Q3" "Q3" "Q3"]
                   ]
 
@@ -124,9 +124,9 @@
                         ["Q2" "Q3" "Q3" "Q3"]
                   ]
 
-                  accept_states ["Q2" "Q3"]
+                  accept_states ["Q3"]
 
-                  input ["a","b","c"]
+                  input ["a","a","a"]
                   
                   [result deterministic_transistions final_states] (SolveFiniteAutomaton states actions next_states accept_states input)
             ]

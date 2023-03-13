@@ -20,14 +20,19 @@
   
     (testing "Testando a função CreateR"
       (is (= result0 {"Q3" {"a" ["Q2"]}, "Q2" {"a" ["Q2"]}, "Q1" {"a" ["Q1"]}} ) )
-      (is (= result1 {"Q3" {"a" ["Q2"] "d" ["Q1"]}, "Q2" {"a" ["Q2"], "c" ["Q3"]}, "Q1" {"a" ["Q1"], "b" ["Q1"], "c" ["Q2"]}}))
+      (is (= result1 {"Q3" {"a" ["Q2"] "d" ["Q1"]}, 
+                      "Q2" {"a" ["Q2"], "c" ["Q3"]}, 
+                      "Q1" {"a" ["Q1"], "b" ["Q1"], "c" ["Q2"]
+                      }}))
     )
   )
 )
 
 (deftest GetDeterministicNextStateTest []
   (let [
-      matrix {"Q3" {"d" ["Q3"], "c" ["Q3"], "b" ["Q3"], "a" ["Q2"]}, "Q2" {"c" ["Q3"], "b" ["Q2"], "a" ["Q2"]}, "Q1" {"d" ["Q3"], "c" ["Q2"], "b" ["Q2"], "a" ["Q1"]}}
+      matrix {"Q3" {"d" ["Q3"], "c" ["Q3"], "b" ["Q3"], "a" ["Q2"]}, 
+              "Q2" {"c" ["Q3"], "b" ["Q2"], "a" ["Q2"]}, 
+              "Q1" {"d" ["Q3"], "c" ["Q2"], "b" ["Q2"], "a" ["Q1"]}}
 
       result0 (ep3.core/GetNextState matrix "Q3" "a")
       result1 (ep3.core/GetNextState matrix "Q3" "b")
@@ -44,7 +49,9 @@
 
 (deftest GetDeterministicResultStateTest []
   (let [
-      matrix {"Q3" {"d" ["Q3"], "c" ["Q3"], "b" ["Q3"], "a" ["Q2"]}, "Q2" {"c" ["Q3"], "b" ["Q2"], "a" ["Q2"]}, "Q1" {"d" ["Q3"], "c" ["Q2"], "b" ["Q2"], "a" ["Q1"]}}
+      matrix {"Q3" {"d" ["Q3"], "c" ["Q3"], "b" ["Q3"], "a" ["Q2"]}, 
+              "Q2" {"c" ["Q3"], "b" ["Q2"], "a" ["Q2"]}, 
+              "Q1" {"d" ["Q3"], "c" ["Q2"], "b" ["Q2"], "a" ["Q1"]}}
 
       input0 ["a" "b" "c"]
       result0 (ep3.core/GetResultState matrix input0 )
@@ -117,14 +124,18 @@
     ]
 
     (testing "Testando a função CreateR"
-      (is (= result0 {"Q3" {"a" ["Q2"]}, "Q2" {"a" ["Q2"]}, "Q1" {"a" ["Q1" "Q2"]}} ) )
+      (is (= result0 {"Q3" {"a" ["Q2"]}, 
+                      "Q2" {"a" ["Q2"]}, 
+                      "Q1" {"a" ["Q1" "Q2"]}} ) )
     )
   )
 )
 
 (deftest GetNonDeterministicNextStateTest []
   (let [
-      matrix {"Q3" {"a" ["Q2"]}, "Q2" {"a" ["Q2"]}, "Q1" {"a" ["Q1" "Q2"]}}
+      matrix {"Q3" {"a" ["Q2"]}, 
+              "Q2" {"a" ["Q2"]}, 
+              "Q1" {"a" ["Q1" "Q2"]}}
 
       result0 (ep3.core/GetNextState matrix "Q3" "a")
       result1 (ep3.core/GetNextState matrix "Q2" "a")
@@ -141,7 +152,9 @@
 
 (deftest GetNonDeterministicResultStateTest []
   (let [
-      matrix {"Q3" {"a" ["Q2"], "b" ["Q3"]}, "Q2" {"a" ["Q2"], "b" ["Q1"]}, "Q1" {"a" ["Q1" "Q2"], "b" ["Q3"], "d" ["Q3" "Q2"] }}
+      matrix {"Q3" {"a" ["Q2"], "b" ["Q3"]}, 
+              "Q2" {"a" ["Q2"], "b" ["Q1"]}, 
+              "Q1" {"a" ["Q1" "Q2"], "b" ["Q3"], "d" ["Q3" "Q2"] }}
 
       input0 ["b" "a" "a"]
       result0 (ep3.core/GetResultState matrix input0 )
