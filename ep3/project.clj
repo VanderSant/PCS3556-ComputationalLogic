@@ -4,5 +4,7 @@
     [org.clojure/clojure "1.5.1"]
   ]
 
+  :plugins [[lein-cljfmt "0.9.2"]]
+  
   :test-paths ["test/"]
 )
