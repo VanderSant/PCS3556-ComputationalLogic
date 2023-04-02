@@ -25,9 +25,15 @@ cd ep2
 lein run
 ```
 
-Para executar o script do ep2:
+Para executar o script do ep3:
 ```sh
 cd ep3
+lein run
+```
+
+Para executar o script do ep4:
+```sh
+cd ep4
 lein run
 ```
 
@@ -53,9 +59,15 @@ cd ep2
 lein test
 ```
 
-Para executar o teste do ep2:
+Para executar o teste do ep3:
 ```sh
 cd ep3
+lein test
+```
+
+Para executar o teste do ep4:
+```sh
+cd ep4
 lein test
 ```
 
