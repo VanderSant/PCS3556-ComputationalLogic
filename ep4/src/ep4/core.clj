@@ -1,12 +1,6 @@
 ;; Definition of namespace -------------
 (ns ep4.core
   (:gen-class)
-
-
-
-
-
-
   (:require [clojure.set :as set]
             [ep2.core :as ep2]))
 
