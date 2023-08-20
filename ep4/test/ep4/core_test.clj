@@ -125,7 +125,7 @@
   )
 )
 
-(deftest IsThatGrammerInChomskyNormalFormTest []
+(deftest IsThatGrammarInChomskyNormalFormTest []
   (let 
     [ 
       start_symbol0 "S"
@@ -169,11 +169,11 @@
                 ["B" ["b"]]
               ]
 
-      result0 (ep4.core/IsThatGrammerInChomskyNormalForm grammar0 start_symbol0 end_symbols0)
-      result1 (ep4.core/IsThatGrammerInChomskyNormalForm grammar1 start_symbol1 end_symbols1)
+      result0 (ep4.core/IsThatGrammarInChomskyNormalForm grammar0 start_symbol0 end_symbols0)
+      result1 (ep4.core/IsThatGrammarInChomskyNormalForm grammar1 start_symbol1 end_symbols1)
     ]
     
-    (testing "Testando a função IsThatGrammerInChomskyNormalForm"
+    (testing "Testando a função IsThatGrammarInChomskyNormalForm"
       (is (not result0))
       (is result1)
     )
@@ -215,7 +215,7 @@
   )
 )
 
-(deftest AddRuleInGrammerTest
+(deftest AddRuleInGrammarTest
   (let
     [
       grammar [ 
@@ -233,9 +233,9 @@
       symbol0 "S"
       symbol1 "B"
 
-      result0 (AddRuleInGrammer grammar elements symbol0)
-      result1 (AddRuleInGrammer grammar elements symbol1)
-      result2 (AddRuleInGrammer grammar [] symbol1)
+      result0 (AddRuleInGrammar grammar elements symbol0)
+      result1 (AddRuleInGrammar grammar elements symbol1)
+      result2 (AddRuleInGrammar grammar [] symbol1)
 
       expectec_result0 [
         ["S0" ["S"]]
@@ -270,7 +270,7 @@
 
     ]
 
-    (testing "Testando a função AddRuleInGrammer"
+    (testing "Testando a função AddRuleInGrammar"
       (is (= result0 expectec_result0))
       (is (= result1 expectec_result1))
       (is (= result2 grammar))
@@ -311,7 +311,7 @@
 
 
     ]
-    (testing "Testando a função GenerateAllCombinationsByRemoveElement"
+    (testing "Testando a função GenerateAllCombinationsByRemovedElement"
       (is (= result0 expectec_result0))
       (is (= result1 expectec_result1))
       (is (= result2 expectec_result2))
@@ -365,7 +365,7 @@
       ]
 
     ]
-    (testing "Testando a função RemoveEmptyValues"
+    (testing "Testando a função ApplyEmptySymbolInGrammar"
       (is (= result0 expectec_result0))
       (is (= result1 expectec_result1))
     )
