@@ -233,9 +233,9 @@
       symbol0 "S"
       symbol1 "B"
 
-      result0 (AddRuleInGrammar grammar elements symbol0)
-      result1 (AddRuleInGrammar grammar elements symbol1)
-      result2 (AddRuleInGrammar grammar [] symbol1)
+      result0 (ep4.core/AddRuleInGrammar grammar elements symbol0)
+      result1 (ep4.core/AddRuleInGrammar grammar elements symbol1)
+      result2 (ep4.core/AddRuleInGrammar grammar [] symbol1)
 
       expectec_result0 [
         ["S0" ["S"]]
@@ -404,6 +404,187 @@
     ]
     (testing "Testando a função RemoveAllPossibleEmptyValues"
       (is (= result0 expectec_result0))
+    )
+  )
+)
+
+(deftest RemoveRedundantValuesTest
+  (let
+    [
+      grammar0 [ 
+        ["S" ["a"]]
+        ["S" ["S"]]
+      ]
+
+      grammar1 [ 
+        ["S" ["a"]]
+        ["S" ["B"]]
+        ["S" ["B"]]
+      ]
+
+      grammar2 [ 
+        ["S0" ["S"]]
+        ["S0" ["A" "S"]] 
+        ["S0" ["S" "A"]] 
+        ["S0" ["A" "S"]]
+        ["S" ["A", "S", "A"]]
+        ["S" ["a", "B"]]
+        ["S" ["a"]]
+        ["S" ["S"]]
+        ["S" ["a", "B"]]
+        ["S" ["A", "S"]]
+        ["S" ["S", "A"]]
+        ["S" ["S", "A"]]
+        ["A" ["B"]]
+        ["A" ["S"]]
+        ["A" ["S"]]
+        ["B" ["b"]]
+      ]
+
+      result0 (ep4.core/RemoveRedundantValues grammar0)
+      result1 (ep4.core/RemoveRedundantValues grammar1)
+      result2 (ep4.core/RemoveRedundantValues grammar2)
+
+      expectec_result0 [
+        ["S" ["a"]]
+      ]
+
+      expectec_result1 [
+        ["S" ["a"]]
+        ["S" ["B"]]
+      ]
+
+      expectec_result2 [
+        ["S0" ["S"]]
+        ["S0" ["A" "S"]] 
+        ["S0" ["S" "A"]]
+        ["S" ["A", "S", "A"]]
+        ["S" ["a", "B"]]
+        ["S" ["a"]]
+        ["S" ["A", "S"]]
+        ["S" ["S", "A"]]
+        ["A" ["B"]]
+        ["A" ["S"]]
+        ["B" ["b"]]
+      ]
+    ]
+    (testing "Testando a função RemoveRedundantValues"
+      (is (= result0 expectec_result0))
+      (is (= result1 expectec_result1))
+      (is (= result2 expectec_result2))
+    )
+  )
+)
+
+(deftest FindFirstAndLastIndexOfSymbolTest
+  (let
+    [
+
+      grammar [ 
+        ["S0" ["S"]]
+        ["S" ["A", "S", "A"]]
+        ["S" ["a", "B"]]
+        ["S" ["a"]]
+        ["S" ["S"]]
+        ["S" ["A", "S"]]
+        ["S" ["S", "A"]]
+        ["S" ["S", "A"]]
+        ["A" ["B"]]
+        ["A" ["S"]]
+        ["A" ["S"]]
+        ["B" ["b"]]
+      ]
+
+      symbol0 "S0"
+      symbol1 "S"
+      symbol2 "A"
+      symbol3 "B"
+      symbol4 "C"
+
+      result_first_0 (ep4.core/FindFirstIndexOfSymbol grammar symbol0)
+      result_last_0 (ep4.core/FindLastIndexOfSymbol grammar symbol0)
+      result_first_1 (ep4.core/FindFirstIndexOfSymbol grammar symbol1)
+      result_last_1 (ep4.core/FindLastIndexOfSymbol grammar symbol1)
+      result_first_2 (ep4.core/FindFirstIndexOfSymbol grammar symbol2)
+      result_last_2 (ep4.core/FindLastIndexOfSymbol grammar symbol2)
+      result_first_3 (ep4.core/FindFirstIndexOfSymbol grammar symbol3)
+      result_last_3 (ep4.core/FindLastIndexOfSymbol grammar symbol3)
+      result_first_4 (ep4.core/FindFirstIndexOfSymbol grammar symbol4)
+      result_last_4 (ep4.core/FindLastIndexOfSymbol grammar symbol4)
+
+      expectec_result_first_0 0
+      expectec_result_last_0 0
+      expectec_result_first_1 1
+      expectec_result_last_1 7
+      expectec_result_first_2 8
+      expectec_result_last_2 10
+      expectec_result_first_3 11
+      expectec_result_last_3 11
+      expectec_result_first_4 nil
+      expectec_result_last_4 nil
+
+    ]
+    (testing "Testando a função FindFirstAndLastIndexOfSymbol"
+      (is (= result_first_0 expectec_result_first_0))
+      (is (= result_last_0 expectec_result_last_0))
+      (is (= result_first_1 expectec_result_first_1))
+      (is (= result_last_1 expectec_result_last_1))
+      (is (= result_first_2 expectec_result_first_2))
+      (is (= result_last_2 expectec_result_last_2))
+      (is (= result_first_3 expectec_result_first_3))
+      (is (= result_last_3 expectec_result_last_3))
+      (is (= result_first_4 expectec_result_first_4))
+      (is (= result_last_4 expectec_result_last_4))
+    )
+  )
+)
+
+(deftest RemoveAllUnitValuesTest
+  (let
+    [
+
+      grammar [ 
+        ["S0" ["S"] ]
+        ["S0" ["A", "S"]]
+        ["S" ["A", "S", "A"]]
+        ["S" ["a", "B"]]
+        ["S" ["a"]]
+        ["S" ["A", "S"]]
+        ["S" ["S", "A"]]
+        ["A" ["B"]]
+        ["A" ["S"]]
+        ["B" ["b"]]
+      ]
+      
+      start_symbol "S0"
+
+      end_symbols ["a" "b"]
+
+      result_0 (ep4.core/RemoveAllUnitValues grammar start_symbol end_symbols)
+
+      expectec_result_0 [
+        ["S0" ["A", "S", "A"]]
+        ["S0" ["a", "B"]]
+        ["S0" ["a"]]
+        ["S0" ["A", "S"]]
+        ["S0" ["S", "A"]]
+        ["S" ["A", "S", "A"]]
+        ["S" ["a", "B"]]
+        ["S" ["a"]]
+        ["S" ["A", "S"]]
+        ["S" ["S", "A"]]
+        ["A" ["b"]]
+        ["A" ["A", "S", "A"]]
+        ["A" ["a", "B"]]
+        ["A" ["a"]]
+        ["A" ["A", "S"]]
+        ["A" ["S", "A"]]
+        ["B" ["b"]]
+      ]
+
+    ]
+    (testing "Testando a função RemoveAllUnitValues"
+      (is (= result_0 expectec_result_0))
     )
   )
 )

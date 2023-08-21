@@ -6,7 +6,9 @@
             [clojure.string :as clj_str]
             [ep2.core :as ep2]))
 
-;; Finite Automaton Functions --------------------
+;; --------------------------------------
+;; General functions 
+;; --------------------------------------
 
 (defn GetAllPossibleSymbols 
   [grammar]
@@ -27,9 +29,9 @@
     values (rule "value")
 
     all_symbols (GetAllPossibleSymbols grammar)
-    number_of_symbols_in_values (count (filter #(contains? (set all_symbols) %) values))
+    number_of_variable_in_element (count (filter #(contains? (set all_symbols) %) values))
   ]
-    number_of_symbols_in_values
+    number_of_variable_in_element
   )
 )
 
@@ -88,6 +90,49 @@
   )
 )
 
+;; Refazer isso depois com uma lógica melhor (pegar todas as posições que o simbolo aparece e retonar a última posição desse vetor de posição)
+(defn FindLastIndexOfSymbol
+  ([Grammar symbol] (FindLastIndexOfSymbol Grammar symbol 0 nil))
+  ([Grammar symbol actual_index last_position]
+    (if (> actual_index (count Grammar))
+      last_position
+      (if  (= ((ep2.core/GetGramRule Grammar actual_index) "simbol") symbol)
+        (FindLastIndexOfSymbol Grammar symbol (+ actual_index 1) actual_index)
+        (FindLastIndexOfSymbol Grammar symbol (+ actual_index 1) last_position)
+      )
+    )
+  )
+)
+
+(defn FindFirstIndexOfSymbol
+  [grammar symbol]
+  (let 
+    [
+      all_positions (vec (range (count grammar)))
+      
+      MapFilter (
+        fn [rule pos] 
+        (if (= (get rule 0) symbol)
+          pos
+          nil
+        )
+      )
+
+      all_position_that_appear_the_symbol (vec (map MapFilter grammar all_positions))
+
+      all_position_that_appear_the_symbol_without_nil_values (vec (filter #(not (= % nil)) all_position_that_appear_the_symbol))
+    ]
+      (if (empty? all_position_that_appear_the_symbol_without_nil_values)
+        nil
+        (get all_position_that_appear_the_symbol_without_nil_values 0)
+      )
+  )
+)
+
+;; -------------------------------------- 
+;; Chomsky normal form verification 
+;; --------------------------------------
+
 (defn IsThatGrammarInChomskyNormalForm
   [grammar start_symbol end_symbols]
   (let [
@@ -106,6 +151,10 @@
     IsGrammarInChomskyNormalForm
   )
 )
+
+;; -------------------------------------- 
+;; Remove Initial Symbols from right side 
+;; --------------------------------------
 
 (defn RemoveInitalSymbolFromRightSide
   [grammar start_symbol end_symbols]
@@ -131,20 +180,9 @@
   )
 )
 
-;; ------------ Remove Empties values ------------
-
-(defn FindLastIndexOfSymbol
-  ([symbol Grammar] (FindLastIndexOfSymbol symbol Grammar 0 0))
-  ([symbol Grammar actual_index last_position]
-    (if (> actual_index (count Grammar))
-      last_position
-      (if  (= ((ep2.core/GetGramRule Grammar actual_index) "simbol") symbol)
-        (FindLastIndexOfSymbol symbol Grammar (+ actual_index 1) actual_index)
-        (FindLastIndexOfSymbol symbol Grammar (+ actual_index 1) last_position)
-      )
-    )
-  )
-)
+;; --------------------------------------
+;; Remove Empties values 
+;; --------------------------------------
 
 (defn AddRuleInGrammar
   [Grammar elements symbol]
@@ -152,7 +190,7 @@
     Grammar
     (let
       [
-        last_symbol_position (FindLastIndexOfSymbol symbol Grammar)
+        last_symbol_position (FindLastIndexOfSymbol Grammar symbol)
         element_to_add (get elements 0)
 
         [Grammar_before Grammar_after] (split-at (+ last_symbol_position 1) Grammar)
@@ -271,21 +309,18 @@
             symbol_to_analyse (get all_symbols index) 
             SymbolGrammarFilter (
               fn [rule] 
-              (if (= (get rule 0) symbol_to_analyse)
-                true
-                false
-              ) 
+              (= (get rule 0) symbol_to_analyse)
             )
 
-            Grammar_filted (vec (filter SymbolGrammarFilter grammar))
+            grammar_filted (vec (filter SymbolGrammarFilter grammar))
 
             rule_elements (ep2.core/GetApplyRuleInElement grammar symbol_to_analyse)
             rules_positions (range (count rule_elements))
 
             element_empty_verification #(and
-              (= (GetNumberOfTerminals Grammar_filted start_symbol end_symbols %) 0)
-              (= (GetNumberOfVariables Grammar_filted start_symbol end_symbols %) 0)
-              (> (GetNumberEmptyVariables Grammar_filted start_symbol end_symbols %) 0)
+              (= (GetNumberOfTerminals grammar_filted start_symbol end_symbols %) 0)
+              (= (GetNumberOfVariables grammar_filted start_symbol end_symbols %) 0)
+              (> (GetNumberEmptyVariables grammar_filted start_symbol end_symbols %) 0)
             )
 
             rule_empty_verification (vec (map element_empty_verification rules_positions))
@@ -307,20 +342,115 @@
   )
 )
 
-;; ------------ Remove unit values ------------
-;; (defn RemoveRedundantValues
-;;   [grammar]
-;;   (let
-;;     [
+;; -------------------------------------- 
+;; Remove redundant values 
+;; --------------------------------------
+
+(defn RemoveRedundantValues
+  [grammar]
+  (let
+    [
+      RepeatedValuesMap (
+        fn [rule pos]
+        (let 
+          [
+            rule_symbol (get rule 0)
+            rule_value (get rule 1)
+            grammar_values_before_position (vec (map #(get grammar %) (range pos) ))
+            grammar_values_before_position_per_symbol (ep2.core/GetApplyRuleInElement grammar_values_before_position rule_symbol)
+          ]
+            (if (not (contains? (set grammar_values_before_position_per_symbol) rule_value))
+              rule
+              [rule_symbol [rule_symbol]]
+            )
+        )
+      )
       
-;;     ]
-;;   )
-;; )
+      grammar_repeated_values_filted (vec (map RepeatedValuesMap grammar (range (count grammar)) ))
 
-;; (defn RemoveAllUnitValues
-;;   [grammar start_symbol end_symbols]
+      SymbolEqualValueFilter (
+        fn [rule]
+        (not (= [(get rule 0)] (get rule 1)))
+      )
 
-;; )
+      grammar_equal_value_filted (vec (filter SymbolEqualValueFilter grammar_repeated_values_filted))
+
+    ]
+    grammar_equal_value_filted
+  )
+)
+
+;; -------------------------------------- 
+;; Remove unit values 
+;; --------------------------------------
+
+(defn RemoveAllUnitValues
+  ([grammar start_symbol end_symbols] (RemoveAllUnitValues grammar start_symbol end_symbols 0))
+  ([grammar start_symbol end_symbols index]
+    (let 
+      [
+        all_possible_symbols (vec (GetAllPossibleSymbols grammar))
+        number_of_symbols (count all_possible_symbols)
+      ]
+      (if (>= index number_of_symbols)
+        grammar
+        (let
+          [
+            symbol_to_analyse (get all_possible_symbols index)
+            values_from_symbol (vec (ep2.core/GetApplyRuleInElement grammar symbol_to_analyse))
+
+            UnitVariableTranformation (
+              fn [element]
+              (let
+                [
+                  number_of_variable_in_element (count (vec (filter #(contains? (set all_possible_symbols) %) element)))
+                  number_of_terminal_in_element (count (vec (filter #(contains? (set end_symbols) %) element)))
+                  number_of_empty_in_element (count (vec (filter #(contains? (set ["ε"]) %) element)))
+                ]
+                (if (and (= number_of_variable_in_element 1) (= number_of_terminal_in_element 0) (= number_of_empty_in_element 0))
+                  (vec (ep2.core/GetApplyRuleInElement grammar (get element 0)))
+                  element
+                )
+              )
+            )
+
+            new_elems_from_symbol_without_unit_value (vec (map UnitVariableTranformation values_from_symbol))
+            FlattenNested (fn [data]
+              (mapcat #(if (vector? (first %)) % [%]) data))
+            new_elems_from_symbol_without_unit_value_flatted (vec (FlattenNested new_elems_from_symbol_without_unit_value))
+            
+            grammar_with_new_values (AddRuleInGrammar grammar new_elems_from_symbol_without_unit_value_flatted symbol_to_analyse)
+
+            OldElemMapFilter (
+              fn [rule actual_index]
+              (let
+                [
+                  initial_index_from_symbol (FindFirstIndexOfSymbol grammar symbol_to_analyse)
+                  last_index_from_symbol (FindLastIndexOfSymbol grammar symbol_to_analyse)
+                ]
+                (if (and (>= actual_index initial_index_from_symbol) (<= actual_index last_index_from_symbol))
+                  nil
+                  rule
+                )
+              )
+            )
+
+            grammar_without_old_elem (vec (map OldElemMapFilter grammar_with_new_values (vec (range (count grammar_with_new_values))) ))
+
+            grammar_without_old_elem_and_nil (vec (filter #(not (= % nil)) grammar_without_old_elem))
+
+            grammar_without_old_elem_and_nil_and_repeated_values (RemoveRedundantValues grammar_without_old_elem_and_nil)
+          ]
+            (RemoveAllUnitValues grammar_without_old_elem_and_nil_and_repeated_values start_symbol end_symbols (+ index 1))
+        )
+      )
+    )
+  )
+)
+
+;; --------------------------------------
+;; Chomsky Normalization
+;; --------------------------------------
 
 (defn PerformeChomskyNormalization
   [grammar start_symbol end_symbols]
@@ -332,13 +462,19 @@
       ] (RemoveInitalSymbolFromRightSide grammar start_symbol end_symbols)
 
       grammar_without_empty_values (RemoveAllPossibleEmptyValues grammar_initial_value_corrected start_symbol_initial_value_corrected end_symbols)
+
+      grammar_filted (RemoveRedundantValues grammar_without_empty_values)
+
+      grammar_without_unit_values (RemoveAllUnitValues grammar_filted start_symbol_initial_value_corrected end_symbols)
+
     ]
-    grammar_without_empty_values
+    grammar_without_unit_values
   )
 )
 
-
-;; Main function ----------------------
+;; --------------------------------------
+;; Main function 
+;; --------------------------------------
 
 (defn -main []
   (def grammar [["S" ["A", "S", "A"]]
