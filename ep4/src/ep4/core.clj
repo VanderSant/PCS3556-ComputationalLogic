@@ -384,6 +384,7 @@
 ;; Remove unit values 
 ;; --------------------------------------
 
+;; Talvez seja necessario executar essa função mais vezes ate convergir para uma situacao sem valores unitario
 (defn RemoveAllUnitValues
   ([grammar start_symbol end_symbols] (RemoveAllUnitValues grammar start_symbol end_symbols 0))
   ([grammar start_symbol end_symbols index]
@@ -445,6 +446,25 @@
         )
       )
     )
+  )
+)
+
+;; -------------------------------------- 
+;; Create new variables to grammar 
+;; --------------------------------------
+
+(AddNewVariablesToGrammar
+  [grammar start_symbol end_symbols]
+  (let 
+    [
+      ;; Criar função para lidar com duas variaveis
+      ;; Criar função para lidar com variavel terminal 
+      ;; Criar função para lidar com dois terminais
+
+      ;; Fazer isso executar em loop até que todos os valores estares com duas variaveis ou um terminal 
+      ;; (ignorar variaveis unitárias ou valores vazios, isso deveria ser trabalho das funções anteriores resolverem isso) 
+    ]
+
   )
 )
 
