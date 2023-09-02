@@ -1,0 +1,50 @@
+name: Eps test pipeline
+
+on: [push]
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-20.04
+    environment: production
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Install lein
+      id: install-lein
+      run: |
+        sudo apt-get update && sudo apt-get install -y leiningen
+
+    - name: Perform ep1 test
+      id: perform-test
+      run: |
+        cd ep1/
+        lein install
+        lein test
+        cd ..
+
+    - name: Perform ep2 test
+      id: perform-test
+      run: |
+        cd ep2/
+        lein install
+        lein test
+        cd ..
+
+    - name: Perform ep3 test
+      id: perform-test
+      run: |
+        cd ep3/
+        lein install
+        lein test
+        cd ..
+
+    - name: Perform ep4 test
+      id: perform-test
+      run: |
+        cd ep4/
+        lein install
+        lein test
+        cd ..
