@@ -15,14 +15,14 @@ jobs:
     - name: Install lein
       id: install-lein
       run: |
-        apt-get update && apt-get install -y \
+        sudo apt-get update && apt-get install -y \
         git \
         wget \
         make \
         tzdata \
         nano
 
-        apt-get update && apt-get install -y leiningen
+        sudo apt-get update && apt-get install -y leiningen
 
     - name: Perform test
       id: perform-test
