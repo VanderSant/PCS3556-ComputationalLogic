@@ -18,7 +18,7 @@ jobs:
         sudo apt-get update && sudo apt-get install -y leiningen
 
     - name: Perform ep1 test
-      id: perform-test
+      id: perform-ep1-test
       run: |
         cd ep1/
         lein install
@@ -26,7 +26,7 @@ jobs:
         cd ..
 
     - name: Perform ep2 test
-      id: perform-test
+      id: perform-ep2-test
       run: |
         cd ep2/
         lein install
@@ -34,7 +34,7 @@ jobs:
         cd ..
 
     - name: Perform ep3 test
-      id: perform-test
+      id: perform-ep3-test
       run: |
         cd ep3/
         lein install
@@ -42,7 +42,7 @@ jobs:
         cd ..
 
     - name: Perform ep4 test
-      id: perform-test
+      id: perform-ep4-test
       run: |
         cd ep4/
         lein install
