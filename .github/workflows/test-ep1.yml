@@ -1,0 +1,32 @@
+name: Ep 1 test pipeline
+
+on: [push]
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-20
+    environment: production
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Install lein
+      id: install-lein
+      run: |
+        apt-get update && apt-get install -y \
+        git \
+        wget \
+        make \
+        tzdata \
+        nano
+
+        apt-get update && apt-get install -y leiningen
+
+    - name: Perform test
+      id: perform-test
+      run: |
+        cd ep1/
+        lein install
+        lein test
