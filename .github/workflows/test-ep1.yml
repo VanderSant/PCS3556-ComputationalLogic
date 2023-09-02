@@ -15,12 +15,11 @@ jobs:
     - name: Install lein
       id: install-lein
       run: |
-        sudo apt-get update && apt-get install -y \
-        git \
-        wget \
-        make \
-        tzdata \
-        nano
+        # sudo apt-get update && apt-get install -y \
+        # git \
+        # wget \
+        # make \
+        # nano
 
         sudo apt-get update && apt-get install -y leiningen
 
