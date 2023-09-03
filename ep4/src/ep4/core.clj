@@ -296,7 +296,7 @@
         GetSymbol #(nth all_possible_symbols %)
         symbol_to_analyse (GetSymbol index)
 
-        number_list_symbols_to_apply (vec (range (+ index 1) (count all_possible_symbols)))
+        number_list_symbols_to_apply (vec (range 0 (count all_possible_symbols)))
         symbols_to_apply (vec (map GetSymbol number_list_symbols_to_apply))
       ]
       (if (> curr_symbol_index (count symbols_to_apply))

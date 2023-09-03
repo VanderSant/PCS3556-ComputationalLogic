@@ -555,7 +555,7 @@
         ["B" ["b" "b" "b"]]
         ["B" ["A", "S", "A"]]
       ]
-      index2 0
+      index2 1
       result2 (ep4.core/ApplyEmptySymbolInGrammar grammar2 start_symbol2 end_symbols2 index2)
       expectec_result2 [
         ["S0" ["S"]]
@@ -567,16 +567,16 @@
         ["A" ["B"]]
         ["B" ["b" "b" "b"]]
         ["B" ["A" "S" "A"]]
+        ["B" ["S"]] 
         ["B" ["A" "S"]]
         ["B" ["S" "A"]]
-        ["B" ["S"]]
       ]
 
     ]
     (testing "Testando a função ApplyEmptySymbolInGrammar"
       (is (= result0 expectec_result0))
       (is (= result1 expectec_result1))
-      ;; (is (= result2 []))
+      (is (= result2 expectec_result2))
     )
   )
 )
@@ -630,15 +630,15 @@
         ["A" ["B"]]
         ["B" ["b" "b" "b"]]
         ["B" ["A" "S" "A"]]
+        ["B" ["S"]]
         ["B" ["A" "S"]]
         ["B" ["S" "A"]]
-        ["B" ["S"]]
       ]
 
     ]
     (testing "Testando a função RemoveAllPossibleEmptyValues"
       (is (= result0 expectec_result0))
-      ;; (is (= result1 expectec_result1))
+      (is (= result1 expectec_result1))
     )
   )
 )
@@ -722,8 +722,7 @@
 (deftest RemoveAllUnitValuesTest
   (let
     [
-
-      grammar [ 
+      grammar0 [ 
         ["S0" ["S"] ]
         ["S0" ["A", "S"]]
         ["S" ["A", "S", "A"]]
@@ -735,13 +734,9 @@
         ["A" ["S"]]
         ["B" ["b"]]
       ]
-      
-      start_symbol "S0"
-
-      end_symbols ["a" "b"]
-
-      result_0 (ep4.core/RemoveAllUnitValues grammar start_symbol end_symbols)
-
+      start_symbol0 "S0"
+      end_symbols0 ["a" "b"]
+      result_0 (ep4.core/RemoveAllUnitValues grammar0 start_symbol0 end_symbols0)
       expectec_result_0 [
         ["S0" ["A", "S", "A"]]
         ["S0" ["a", "B"]]
@@ -762,9 +757,51 @@
         ["B" ["b"]]
       ]
 
+      grammar1 [ 
+        ["S0" ["S"]]
+        ["S" ["A" "a" "B"]]
+        ["S" ["b"]]
+        ["S" ["a" "B"]]
+        ["A" ["S"]]
+        ["A" ["A" "B"]]
+        ["A" ["B"]]
+        ["B" ["b" "b" "b"]]
+        ["B" ["A" "S" "A"]]
+        ["B" ["S"]]
+        ["B" ["A" "S"]]
+        ["B" ["S" "A"]]
+      ]
+      start_symbol1 "S0"
+      end_symbols1 ["a" "b"]
+      result_1 (ep4.core/RemoveAllUnitValues grammar1 start_symbol1 end_symbols1)
+      expectec_result_1 [
+        ["S0" ["A" "a" "B"]]
+        ["S0" ["b"]]
+        ["S0" ["a" "B"]]
+        ["S" ["A" "a" "B"]]
+        ["S" ["b"]]
+        ["S" ["a" "B"]]
+        ["A" ["A" "a" "B"]]
+        ["A" ["b"]]
+        ["A" ["a" "B"]]
+        ["A" ["A" "B"]]
+        ["A" ["b" "b" "b"]]
+        ["A" ["A" "S" "A"]]
+        ["A" ["A" "S"]]
+        ["A" ["S" "A"]]
+        ["B" ["b" "b" "b"]]
+        ["B" ["A" "S" "A"]]
+        ["B" ["A" "a" "B"]]
+        ["B" ["b"]]
+        ["B" ["a" "B"]]
+        ["B" ["A" "S"]]
+        ["B" ["S" "A"]]
+      ]
+
     ]
     (testing "Testando a função RemoveAllUnitValues"
       (is (= result_0 expectec_result_0))
+      (is (= result_1 expectec_result_1))
     )
   )
 )
@@ -1115,7 +1152,7 @@
   (let
     [
 
-      grammar [ 
+      grammar0 [ 
         ["S0" ["A", "S", "A"]]
         ["S0" ["a", "B"]]
         ["S0" ["a"]]
@@ -1134,13 +1171,9 @@
         ["A" ["A", "S"]]
         ["B" ["b"]]
       ]
-      
-      start_symbol "S0"
-
-      end_symbols ["a" "b"]
-
-      result_0 (ep4.core/AddNewVariablesToGrammar grammar start_symbol end_symbols)
-
+      start_symbol0 "S0"
+      end_symbols0 ["a" "b"]
+      result_0 (ep4.core/AddNewVariablesToGrammar grammar0 start_symbol0 end_symbols0)
       expectec_result_0 [
         ["S0" ["A", "B1"]]
         ["S0" ["B11", "B"]]
@@ -1162,15 +1195,70 @@
         ["A" ["A", "S"]]
 
         ["B" ["b"]]
-
         ["B1" ["S" "A"]]
-
         ["B11" ["a"]]
+      ]
+
+      grammar1 [ 
+        ["S0" ["A" "a" "B"]]
+        ["S0" ["b"]]
+        ["S0" ["a" "B"]]
+        ["S" ["A" "a" "B"]]
+        ["S" ["b"]]
+        ["S" ["a" "B"]]
+        ["A" ["A" "a" "B"]]
+        ["A" ["b"]]
+        ["A" ["a" "B"]]
+        ["A" ["A" "B"]]
+        ["A" ["b" "b" "b"]]
+        ["A" ["A" "S" "A"]]
+        ["A" ["A" "S"]]
+        ["A" ["S" "A"]]
+        ["B" ["b" "b" "b"]]
+        ["B" ["A" "S" "A"]]
+        ["B" ["A" "a" "B"]]
+        ["B" ["b"]]
+        ["B" ["a" "B"]]
+        ["B" ["A" "S"]]
+        ["B" ["S" "A"]]
+
+      ]
+      start_symbol1 "S0"
+      end_symbols1 ["a" "b"]
+      result_1 (ep4.core/AddNewVariablesToGrammar grammar1 start_symbol1 end_symbols1)
+      expectec_result_1 [
+        ["S0" ["A" "B11"]]
+        ["S0" ["b"]]
+        ["S0" ["B1" "B"]]
+        ["S" ["A" "B11"]]
+        ["S" ["b"]]
+        ["S" ["B1" "B"]]
+        ["A" ["A" "B11"]]
+        ["A" ["b"]]
+        ["A" ["B1" "B"]]
+        ["A" ["A" "B"]]
+        ["A" ["B111" "B11111"]]
+        ["A" ["A" "B1111"]]
+        ["A" ["A" "S"]]
+        ["A" ["S" "A"]]
+        ["B" ["B111" "B11111"]]
+        ["B" ["A" "B1111"]]
+        ["B" ["A" "B11"]]
+        ["B" ["b"]]
+        ["B" ["B1" "B"]]
+        ["B" ["A" "S"]]
+        ["B" ["S" "A"]]
+        ["B1" ["a"]]
+        ["B11" ["B1" "B"]]
+        ["B111" ["b"]]
+        ["B1111" ["S" "A"]]
+        ["B11111" ["B111" "B111"]]
       ]
 
     ]
     (testing "Testando a função AddNewVariablesToGrammar"
       (is (= result_0 expectec_result_0))
+      (is (= result_1 expectec_result_1))
     )
   )
 )
@@ -1243,13 +1331,32 @@
       end_symbols2 ["a" "b"]
       result2 (ep4.core/PerformeChomskyNormalization grammar2 start_symbol2 end_symbols2)
       expectec_grammar_result2 [
-        ["S" ["A" "a" "B"]]
+        ["S0" ["A" "B11"]]
+        ["S0" ["b"]]
+        ["S0" ["B1" "B"]]
+        ["S" ["A" "B11"]]
         ["S" ["b"]]
-        ["A" ["S"]]
-        ["A" ["ε"]]
+        ["S" ["B1" "B"]]
+        ["A" ["A" "B11"]]
+        ["A" ["b"]]
+        ["A" ["B1" "B"]]
         ["A" ["A" "B"]]
-        ["B" ["b" "b" "b"]]
-        ["B" ["A", "S", "A"]]
+        ["A" ["B111" "B11111"]]
+        ["A" ["A" "B1111"]]
+        ["A" ["A" "S"]]
+        ["A" ["S" "A"]]
+        ["B" ["B111" "B11111"]]
+        ["B" ["A" "B1111"]]
+        ["B" ["A" "B11"]]
+        ["B" ["b"]]
+        ["B" ["B1" "B"]]
+        ["B" ["A" "S"]]
+        ["B" ["S" "A"]]
+        ["B1" ["a"]]
+        ["B11" ["B1" "B"]]
+        ["B111" ["b"]]
+        ["B1111" ["S" "A"]]
+        ["B11111" ["B111" "B111"]]
       ]
 
     ]
@@ -1258,8 +1365,8 @@
       (is (= expectec_grammar_result0 (get result0 1)) )
       (is (= true (get result1 0)))
       (is (= expectec_grammar_result1 (get result1 1)) )
-      ;; (is (= true (get result2 0)))
-      ;; (is (= [] (get result2 1)) )
+      (is (= true (get result2 0)))
+      (is (= expectec_grammar_result2 (get result2 1)) )
     )
   )
 )
