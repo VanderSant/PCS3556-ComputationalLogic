@@ -395,19 +395,15 @@
 (deftest RemoveInitalSymbolFromRightSideTest
   (let 
     [
-      grammar [["S" ["A", "S", "A"]]
+      grammar0 [["S" ["A", "S", "A"]]
                ["S" ["a", "B"]]
                ["A" ["B" "A"]]
                ["A" ["S"]]
                ["B" ["b", "ε"]]
                ["S" ["a", "ε"]]]
-      
-      start_symbol "S"
-
-      end_symbols ["a" "b"]
-
-      result0 (ep4.core/RemoveInitalSymbolFromRightSide grammar start_symbol end_symbols)
-
+      start_symbol0 "S"
+      end_symbols0 ["a" "b"]
+      result0 (ep4.core/RemoveInitalSymbolFromRightSide grammar0 start_symbol0 end_symbols0)
       expectec_result0 [
         [
           ["S0" ["S"]]
@@ -420,9 +416,36 @@
         ]
 
         "S0"]
+
+      grammar1 [
+        ["S" ["A" "a" "B"]]
+        ["S" ["b"]]
+        ["A" ["S"]]
+        ["A" ["ε"]]
+        ["A" ["A" "B"]]
+        ["B" ["b" "b" "b"]]
+        ["B" ["A", "S", "A"]]
+      ]
+      start_symbol1 "S"
+      end_symbols1 ["a" "b"]
+      result1 (ep4.core/RemoveInitalSymbolFromRightSide grammar1 start_symbol1 end_symbols1)
+      expectec_result1 [
+        [
+          ["S0" ["S"]]
+          ["S" ["A" "a" "B"]]
+          ["S" ["b"]]
+          ["A" ["S"]]
+          ["A" ["ε"]]
+          ["A" ["A" "B"]]
+          ["B" ["b" "b" "b"]]
+          ["B" ["A", "S", "A"]]
+        ]
+        "S0"
+      ]
     ]
     (testing "Testando a função RemoveInitalSymbolFromRightSide"
       (is (= expectec_result0 result0))
+      (is (= expectec_result1 result1))
     )
   )
 )
@@ -438,6 +461,7 @@
       element1 ["a", "B"]
       element2 ["A", "S"]
       element3 ["A"]
+      element4 ["A" "a" "B"]
 
       symbol "A"
 
@@ -445,6 +469,7 @@
       result1 (ep4.core/GenerateAllCombinationsByRemovedElement element1 symbol)
       result2 (ep4.core/GenerateAllCombinationsByRemovedElement element2 symbol)
       result3 (ep4.core/GenerateAllCombinationsByRemovedElement element3 symbol)
+      result4 (ep4.core/GenerateAllCombinationsByRemovedElement element4 symbol)
 
       expectec_result0 [
         ["S"]
@@ -462,6 +487,9 @@
         ["ε"]
       ]
 
+      expectec_result4 [
+        ["a" "B"]
+      ]
 
     ]
     (testing "Testando a função GenerateAllCombinationsByRemovedElement"
@@ -469,6 +497,7 @@
       (is (= result1 expectec_result1))
       (is (= result2 expectec_result2))
       (is (= result3 expectec_result3))
+      (is (= result4 expectec_result4))
     )
   )
 )
@@ -476,10 +505,8 @@
 (deftest ApplyEmptySymbolInGrammarTest
   (let 
     [
-      start_symbol "S0"
-
-      end_symbols ["a" "b"]
-
+      start_symbol0 "S0"
+      end_symbols0 ["a" "b"]
       grammar0 [ 
         ["S0" ["S"]]
         ["S" ["A", "S", "A"]]
@@ -490,7 +517,7 @@
         ["B" ["ε"]]
       ]
       index0 0
-      result0 (ep4.core/ApplyEmptySymbolInGrammar grammar0 start_symbol end_symbols index0)
+      result0 (ep4.core/ApplyEmptySymbolInGrammar grammar0 start_symbol0 end_symbols0 index0)
       expectec_result0 [
         ["S0" ["S"]]
         ["S" ["A", "S", "A"]]
@@ -501,9 +528,8 @@
         ["A" ["ε"]]
         ["B" ["b"]]
       ]
-
       index1 1
-      result1 (ep4.core/ApplyEmptySymbolInGrammar expectec_result0 start_symbol end_symbols index1)
+      result1 (ep4.core/ApplyEmptySymbolInGrammar expectec_result0 start_symbol0 end_symbols0 index1)
       expectec_result1 [
         ["S0" ["S"]]
         ["S" ["A", "S", "A"]]
@@ -517,10 +543,40 @@
         ["B" ["b"]]
       ]
 
+      start_symbol2 "S0"
+      end_symbols2 ["a" "b"]
+      grammar2 [ 
+        ["S0" ["S"]]
+        ["S" ["A" "a" "B"]]
+        ["S" ["b"]]
+        ["A" ["S"]]
+        ["A" ["ε"]]
+        ["A" ["A" "B"]]
+        ["B" ["b" "b" "b"]]
+        ["B" ["A", "S", "A"]]
+      ]
+      index2 0
+      result2 (ep4.core/ApplyEmptySymbolInGrammar grammar2 start_symbol2 end_symbols2 index2)
+      expectec_result2 [
+        ["S0" ["S"]]
+        ["S" ["A" "a" "B"]]
+        ["S" ["b"]]
+        ["S" ["a" "B"]]
+        ["A" ["S"]]
+        ["A" ["A" "B"]]
+        ["A" ["B"]]
+        ["B" ["b" "b" "b"]]
+        ["B" ["A" "S" "A"]]
+        ["B" ["A" "S"]]
+        ["B" ["S" "A"]]
+        ["B" ["S"]]
+      ]
+
     ]
     (testing "Testando a função ApplyEmptySymbolInGrammar"
       (is (= result0 expectec_result0))
       (is (= result1 expectec_result1))
+      ;; (is (= result2 []))
     )
   )
 )
@@ -528,20 +584,16 @@
 (deftest RemoveAllPossibleEmptyValuesTest
   (let
     [
-      grammar [ ["S0" ["S"]]
+      grammar0 [ ["S0" ["S"]]
                 ["S" ["A", "S", "A"]]
                 ["S" ["a", "B"]]
                 ["A" ["B"]]
                 ["A" ["S"]]
                 ["B" ["b"]]
                 ["B" ["ε"]]]
-      
-      start_symbol "S0"
-
-      end_symbols ["a" "b"]
-
-      result0 (ep4.core/RemoveAllPossibleEmptyValues grammar start_symbol end_symbols)
-
+      start_symbol0 "S0"
+      end_symbols0 ["a" "b"]
+      result0 (ep4.core/RemoveAllPossibleEmptyValues grammar0 start_symbol0 end_symbols0)
       expectec_result0 [
         ["S0" ["S"]]
         ["S" ["A", "S", "A"]]
@@ -554,9 +606,39 @@
         ["A" ["S"]]
         ["B" ["b"]]
       ]
+
+      grammar1 [
+        ["S0" ["S"]]
+        ["S" ["A" "a" "B"]]
+        ["S" ["b"]]
+        ["A" ["S"]]
+        ["A" ["ε"]]
+        ["A" ["A" "B"]]
+        ["B" ["b" "b" "b"]]
+        ["B" ["A", "S", "A"]]
+      ]
+      start_symbol1 "S"
+      end_symbols1 ["a" "b"]
+      result1 (ep4.core/RemoveAllPossibleEmptyValues grammar1 start_symbol1 end_symbols1)
+      expectec_result1 [
+        ["S0" ["S"]]
+        ["S" ["A" "a" "B"]]
+        ["S" ["b"]]
+        ["S" ["a" "B"]]
+        ["A" ["S"]]
+        ["A" ["A" "B"]]
+        ["A" ["B"]]
+        ["B" ["b" "b" "b"]]
+        ["B" ["A" "S" "A"]]
+        ["B" ["A" "S"]]
+        ["B" ["S" "A"]]
+        ["B" ["S"]]
+      ]
+
     ]
     (testing "Testando a função RemoveAllPossibleEmptyValues"
       (is (= result0 expectec_result0))
+      ;; (is (= result1 expectec_result1))
     )
   )
 )
@@ -1147,12 +1229,37 @@
           ["B11" ["d"]]
           ["B111" ["B1", "B11"] ] 
         ]
+
+      grammar2 [
+        ["S" ["A" "a" "B"]]
+        ["S" ["b"]]
+        ["A" ["S"]]
+        ["A" ["ε"]]
+        ["A" ["A" "B"]]
+        ["B" ["b" "b" "b"]]
+        ["B" ["A", "S", "A"]]
+      ]
+      start_symbol2 "S"
+      end_symbols2 ["a" "b"]
+      result2 (ep4.core/PerformeChomskyNormalization grammar2 start_symbol2 end_symbols2)
+      expectec_grammar_result2 [
+        ["S" ["A" "a" "B"]]
+        ["S" ["b"]]
+        ["A" ["S"]]
+        ["A" ["ε"]]
+        ["A" ["A" "B"]]
+        ["B" ["b" "b" "b"]]
+        ["B" ["A", "S", "A"]]
+      ]
+
     ]
     (testing "Testando a função PerformeChomskyNormalization"
       (is (= true (get result0 0)))
       (is (= expectec_grammar_result0 (get result0 1)) )
       (is (= true (get result1 0)))
       (is (= expectec_grammar_result1 (get result1 1)) )
+      ;; (is (= true (get result2 0)))
+      ;; (is (= [] (get result2 1)) )
     )
   )
 )

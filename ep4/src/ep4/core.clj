@@ -238,27 +238,33 @@
   [elements symbol]
   (let
     [
-      SymbolCounter (fn [elements] (count (filter #(= symbol %) elements)))
+      SymbolCounter (fn [elem] (count (filter #(= symbol %) elem)))
+      total_symbol_element (SymbolCounter elements)
     ]
-      (if (= (SymbolCounter elements) 0)
+      (if (= total_symbol_element 0)
         []
         (if (and (= (count elements) 1) (= (get elements 0) symbol))
           [["ε"]]
           (let
             [
               number_of_elements (count elements)
-              all_combination_sizes (range 1 number_of_elements)
-
               AddValueInStr (fn [string index] (str string "-" index))
               elements_with_number (map AddValueInStr elements (range number_of_elements))
+
+              all_combination_sizes (range 1 number_of_elements)
               all_possible_values_with_number (map #(comb/combinations elements_with_number %) all_combination_sizes)
 
               RemoveNumberFromStr #(first (clj_str/split % #"-"))
               RemoveNumberFromRules #(map (fn [value] (map RemoveNumberFromStr value)) %)
               all_possible_values (map RemoveNumberFromRules all_possible_values_with_number)
 
-              value_filter_function (fn [values index] (filter #(< (SymbolCounter %) index) values) )
-              all_possible_values_filter (map value_filter_function all_possible_values all_combination_sizes)
+              accept_sizes_threshold (- (count elements) total_symbol_element)
+              ValueFilterFunction (fn [values size] (filter #(and
+                (= (SymbolCounter %) (- size (- number_of_elements total_symbol_element) ) )
+                (>= (count %) accept_sizes_threshold) )
+                values)
+              )
+              all_possible_values_filter (map ValueFilterFunction all_possible_values all_combination_sizes)
 
               TransformElementInVec #(map vec %)
               all_possible_values_vec (vec (map #(vec (TransformElementInVec %)) all_possible_values_filter))
@@ -270,8 +276,10 @@
                 (mapcat #(if (vector? (first %)) % [%]) data))
 
               all_possible_values_vec_formated (vec (FlattenNested all_possible_values_vec_flatten))
+
+              all_possible_values_vec_formated_without_empty_values (vec (filter #(not (= % [])) all_possible_values_vec_formated) )
             ]
-            all_possible_values_vec_formated
+            all_possible_values_vec_formated_without_empty_values
           )
         )
       )
@@ -298,10 +306,7 @@
               fn [rule] 
               (if (not (= (get rule 0) symbol_to_analyse)) 
                 true
-                (if (= (get rule 1) ["ε"]) 
-                  false
-                  true
-                )
+                (not (= (get rule 1) ["ε"]))
               ) 
             )
             final_grammar (vec (filter EmptyFilter grammar))
@@ -331,33 +336,27 @@
   ([grammar start_symbol end_symbols index]
     (let
       [
-        all_symbols (vec (reverse (GetAllPossibleSymbols grammar)))
-        number_of_symbols (count all_symbols)
+        all_symbols_reversed (vec (reverse (GetAllPossibleSymbols grammar)))
+        number_of_symbols (count all_symbols_reversed)
       ]
       (if (>= index number_of_symbols)
         grammar
         (let
           [
-            symbol_to_analyse (get all_symbols index) 
-            SymbolGrammarFilter (
-              fn [rule] 
-              (= (get rule 0) symbol_to_analyse)
-            )
-
-            grammar_filted (vec (filter SymbolGrammarFilter grammar))
+            symbol_to_analyse (get all_symbols_reversed index) 
+            grammar_filted (vec (filter #(= (get % 0) symbol_to_analyse) grammar))
 
             rule_elements (ep2.core/GetApplyRuleInElement grammar symbol_to_analyse)
             rules_positions (range (count rule_elements))
 
-            element_empty_verification #(and
+            ElementEmptyVerification #(and
               (= (GetNumberOfTerminalsByIndex grammar_filted start_symbol end_symbols %) 0)
               (= (GetNumberOfVariablesByIndex grammar_filted start_symbol end_symbols %) 0)
               (> (GetNumberEmptyVariablesByIndex grammar_filted start_symbol end_symbols %) 0)
             )
 
-            rule_empty_verification (vec (map element_empty_verification rules_positions))
+            rule_empty_verification (vec (map ElementEmptyVerification rules_positions))
             is_to_apply_empty_elimination (not (every? false? rule_empty_verification))
-
           ]
             (if is_to_apply_empty_elimination
               (let
@@ -416,17 +415,19 @@
 ;; Remove unit values 
 ;; --------------------------------------
 
-;; Talvez seja necessario executar essa função mais vezes ate convergir para uma situacao sem valores unitario
 (defn RemoveAllUnitValues
-  ([grammar start_symbol end_symbols] (RemoveAllUnitValues grammar start_symbol end_symbols 0))
-  ([grammar start_symbol end_symbols index]
-    (let 
+  ([grammar start_symbol end_symbols] (RemoveAllUnitValues grammar start_symbol end_symbols 0 grammar))
+  ([grammar start_symbol end_symbols index initial_grammar]
+    (let
       [
         all_possible_symbols (vec (GetAllPossibleSymbols grammar))
         number_of_symbols (count all_possible_symbols)
       ]
       (if (>= index number_of_symbols)
-        grammar
+        (if (not (= grammar initial_grammar))
+          (RemoveAllUnitValues grammar start_symbol end_symbols 0 grammar)
+          grammar
+        )
         (let
           [
             symbol_to_analyse (get all_possible_symbols index)
@@ -436,9 +437,9 @@
               fn [element]
               (let
                 [
-                  number_of_variable_in_element (count (vec (filter #(contains? (set all_possible_symbols) %) element)))
-                  number_of_terminal_in_element (count (vec (filter #(contains? (set end_symbols) %) element)))
-                  number_of_empty_in_element (count (vec (filter #(contains? (set ["ε"]) %) element)))
+                  number_of_variable_in_element (GetNumberOfVariablesByElement grammar start_symbol end_symbols element)
+                  number_of_terminal_in_element (GetNumberOfTerminalsByElement grammar start_symbol end_symbols element)
+                  number_of_empty_in_element (GetNumberEmptyVariablesByElement grammar start_symbol end_symbols element)
                 ]
                 (if (and (= number_of_variable_in_element 1) (= number_of_terminal_in_element 0) (= number_of_empty_in_element 0))
                   (vec (ep2.core/GetApplyRuleInElement grammar (get element 0)))
@@ -474,7 +475,7 @@
 
             grammar_without_old_elem_and_nil_and_repeated_values (RemoveRedundantValues grammar_without_old_elem_and_nil)
           ]
-            (RemoveAllUnitValues grammar_without_old_elem_and_nil_and_repeated_values start_symbol end_symbols (+ index 1))
+            (RemoveAllUnitValues grammar_without_old_elem_and_nil_and_repeated_values start_symbol end_symbols (+ index 1) initial_grammar)
         )
       )
     )
@@ -675,7 +676,6 @@
       current_element (get current_rule 1)
 
       GetLastTwoElements (fn [elem](vec (subvec elem (- (count elem) 2))))
-      ;; GetTerminalElements (fn [elem] (vec (filter #(contains? (set end_symbols) %) (GetLastTwoElements elem) ) ) )
       terminals_value_curr_elem (GetLastTwoElements current_element)
       [inter_grammar symbol0_to_swap] (GetSymbolToSwap grammar [(get terminals_value_curr_elem 0)])
       [new_grammar symbol1_to_swap] (GetSymbolToSwap inter_grammar [(get terminals_value_curr_elem 1)])
@@ -704,7 +704,7 @@
 (defn AddNewVariablesToGrammar
   ([grammar start_symbol end_symbols] (AddNewVariablesToGrammar grammar start_symbol end_symbols 0 grammar))
   ([grammar start_symbol end_symbols index inital_grammar]
-    (let 
+    (let
       [
         num_of_rules (count grammar)
         is_to_continue (>= num_of_rules index)
