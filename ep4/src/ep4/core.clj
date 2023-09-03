@@ -13,24 +13,11 @@
 (defn GetAllPossibleSymbols 
   [grammar]
   (let [
-    GetSymbol #(nth % 0)
+    GetSymbol #(get % 0)
     get_all_symbols (vec (map GetSymbol grammar))
     all_symbols_without_duplicate (distinct get_all_symbols)
   ]
     (vec all_symbols_without_duplicate)
-  )
-)
-
-(defn GetNumberOfVariablesByIndex
-  [grammar start_symbol end_symbols index]
-  (let [
-    rule (ep2/GetGramRule grammar index)
-    elem (rule "value")
-
-    all_symbols (GetAllPossibleSymbols grammar)
-    number_of_variable_in_element (count (filter #(contains? (set all_symbols) %) elem))
-  ]
-    number_of_variable_in_element
   )
 )
 
@@ -44,25 +31,34 @@
   )
 )
 
-(defn GetNumberOfTerminalsByIndex
+(defn GetNumberOfVariablesByIndex
   [grammar start_symbol end_symbols index]
   (let [
     rule (ep2/GetGramRule grammar index)
     elem (rule "value")
-
-    number_of_termminals_in_values (count (filter #(contains? (set end_symbols) %) elem))
   ]
-    number_of_termminals_in_values
+    (GetNumberOfVariablesByElement grammar start_symbol end_symbols elem)
   )
 )
 
 (defn GetNumberOfTerminalsByElement
   [grammar start_symbol end_symbols elem]
+  (count (filter #(contains? (set end_symbols) %) elem))
+)
+
+(defn GetNumberOfTerminalsByIndex
+  [grammar start_symbol end_symbols index]
   (let [
-    number_of_termminals_in_values (count (filter #(contains? (set end_symbols) %) elem))
+    rule (ep2/GetGramRule grammar index)
+    elem (rule "value")
   ]
-    number_of_termminals_in_values
+    (GetNumberOfTerminalsByElement grammar start_symbol end_symbols elem)
   )
+)
+
+(defn GetNumberEmptyVariablesByElement
+  [grammar start_symbol end_symbols elem]
+  (count (filter #(contains? (set ["ε"]) %) elem))
 )
 
 (defn GetNumberEmptyVariablesByIndex
@@ -70,19 +66,8 @@
   (let [
     rule (ep2/GetGramRule grammar index)
     elem (rule "value")
-
-    number_of_empties_variables (count (filter #(contains? (set ["ε"]) %) elem))
   ]
-    number_of_empties_variables
-  )
-)
-
-(defn GetNumberEmptyVariablesByElement
-  [grammar start_symbol end_symbols elem]
-  (let [
-    number_of_empties_variables (count (filter #(contains? (set ["ε"]) %) elem))
-  ]
-    number_of_empties_variables
+    (GetNumberEmptyVariablesByElement grammar start_symbol end_symbols elem)
   )
 )
 
@@ -107,7 +92,6 @@
   [grammar start_symbol end_symbols index]
   (let [
     rule (ep2/GetGramRule grammar index)
-    symbol (rule "simbol")
     values (rule "value")
 
     number_of_initial_variables (count (filter #(contains? (set [start_symbol]) %) values))
@@ -116,7 +100,6 @@
   )
 )
 
-;; Refazer isso depois com uma lógica melhor (pegar todas as posições que o simbolo aparece e retonar a última posição desse vetor de posição)
 (defn FindLastIndexOfSymbol
   ([Grammar symbol] (FindLastIndexOfSymbol Grammar symbol 0 nil))
   ([Grammar symbol actual_index last_position]
@@ -190,15 +173,15 @@
     rules_position (range grammar_len)
 
     IsRuleWithInitialVariable #(InitialVariableValidation grammar start_symbol end_symbols %)
-    IsEmptyVariableValid #(EmptyVariableValidation grammar start_symbol end_symbols %)
-    IsOneTerminalValidation #(and (= (GetNumberOfTerminalsByIndex grammar start_symbol end_symbols %) 1) (= (GetNumberOfVariablesByIndex grammar start_symbol end_symbols %) 0))
-    IsTwoVariablesValidation #(and (= (GetNumberOfTerminalsByIndex grammar start_symbol end_symbols %) 0) (= (GetNumberOfVariablesByIndex grammar start_symbol end_symbols %) 2))
+    EmptyVariableValid #(EmptyVariableValidation grammar start_symbol end_symbols %)
+    OneTerminalValidation #(and (= (GetNumberOfTerminalsByIndex grammar start_symbol end_symbols %) 1) (= (GetNumberOfVariablesByIndex grammar start_symbol end_symbols %) 0))
+    TwoVariablesValidation #(and (= (GetNumberOfTerminalsByIndex grammar start_symbol end_symbols %) 0) (= (GetNumberOfVariablesByIndex grammar start_symbol end_symbols %) 2))
 
-    RuleChomskyNormalForm (fn [position] (and (or (IsOneTerminalValidation position) (IsTwoVariablesValidation position)) (IsEmptyVariableValid position) (IsRuleWithInitialVariable position)) )
-    GrammarChomskyNormalFormArray (vec (map RuleChomskyNormalForm rules_position))
-    IsGrammarInChomskyNormalForm (every? true? GrammarChomskyNormalFormArray)
+    IsRuleChomskyNormalForm (fn [position] (and (or (OneTerminalValidation position) (TwoVariablesValidation position)) (EmptyVariableValid position) (IsRuleWithInitialVariable position)) )
+    grammar_chomsky_normal_form_array (vec (map IsRuleChomskyNormalForm rules_position))
+    is_grammar_in_chomsky_normal_form (every? true? grammar_chomsky_normal_form_array)
   ]
-    IsGrammarInChomskyNormalForm
+    is_grammar_in_chomsky_normal_form
   )
 )
 
@@ -214,9 +197,9 @@
       rules_position (range grammar_len)
 
       InitialVariableRuleCheck #(InitialVariableValidation grammar start_symbol end_symbols %)
-      InitialVariableGrammarCheck (every? true? (vec (map InitialVariableRuleCheck rules_position)))
+      initial_variable_grammar_check (every? true? (vec (map InitialVariableRuleCheck rules_position)))
     ]
-    (if (not InitialVariableGrammarCheck)
+    (if (not initial_variable_grammar_check)
       (let
         [
           new_start_symbol "S0"
@@ -270,16 +253,16 @@
               all_possible_values_vec (vec (map #(vec (TransformElementInVec %)) all_possible_values_filter))
 
               FlatArray (fn [value] (if (= (count value) 1) (first value) value))
-              all_possible_values_vec_flatten (vec (map FlatArray all_possible_values_vec))
+              all_possible_values_flatten (vec (map FlatArray all_possible_values_vec))
 
               FlattenNested (fn [data]
                 (mapcat #(if (vector? (first %)) % [%]) data))
 
-              all_possible_values_vec_formated (vec (FlattenNested all_possible_values_vec_flatten))
+              all_possible_values_formated (vec (FlattenNested all_possible_values_flatten))
 
-              all_possible_values_vec_formated_without_empty_values (vec (filter #(not (= % [])) all_possible_values_vec_formated) )
+              all_possible_values_without_empty_values (vec (filter #(not (= % [])) all_possible_values_formated) )
             ]
-            all_possible_values_vec_formated_without_empty_values
+            all_possible_values_without_empty_values
           )
         )
       )
@@ -486,43 +469,6 @@
 ;; Create new variables to grammar 
 ;; --------------------------------------
 
-
-(defn GrammarCorrectionVerificationByIndex
-  [grammar start_symbol end_symbols index ver_case]
-  (let
-    [
-      current_rule (get grammar index)
-      current_element (get current_rule 1)
-      element_size (count current_element)
-
-      total_number_of_terminals (GetNumberOfTerminalsByElement grammar start_symbol end_symbols current_element)
-      total_number_of_variables (GetNumberOfVariablesByElement grammar start_symbol end_symbols current_element)
-      total_number_of_empties (GetNumberEmptyVariablesByElement grammar start_symbol end_symbols current_element) 
-    ]
-      (if (or (<= element_size 1) (and (= element_size 2) (= total_number_of_variables 2)))
-        false
-        (let
-          [
-            final_elements (vec (subvec current_element (- element_size 2)))
-            local_number_of_variables (GetNumberOfVariablesByElement grammar start_symbol end_symbols final_elements)
-            local_number_of_terminals (GetNumberOfTerminalsByElement grammar start_symbol end_symbols final_elements)
-            local_number_of_empties (GetNumberEmptyVariablesByElement grammar start_symbol end_symbols final_elements)
-          ] 
-          (if (= ver_case 0)
-            (and (= local_number_of_terminals 1) (= local_number_of_variables 1))
-            (if (= ver_case 1)
-              (= local_number_of_variables 2)
-              (if (= ver_case 2)
-                (= local_number_of_terminals 2)
-                false
-              )
-            )
-          )
-        )
-      )
-  )
-)
-
 (defn GrammarCorrectionVerificationByElement
   [grammar start_symbol end_symbols elem ver_case]
   (let
@@ -558,33 +504,32 @@
   )
 )
 
-;; tem uma parte do código repetido aqui, melhorar isso depois
+
+
+(defn GrammarCorrectionVerificationByIndex
+  [grammar start_symbol end_symbols index ver_case]
+  (let
+    [
+      current_rule (get grammar index)
+      current_element (get current_rule 1)
+    ]
+    (GrammarCorrectionVerificationByElement grammar start_symbol end_symbols current_element ver_case)
+  )
+)
+
 (defn GetSymbolToSwap
   [grammar elem]
   (let
     [
       all_possible_symbols (GetAllPossibleSymbols grammar)
-      filter_function #(= (count (ep2.core/GetApplyRuleInElement grammar %)) 1)
-      all_possible_symbols_with_one_value (vec (filter filter_function all_possible_symbols))
+      FilterFunction #(and 
+        (= (count (ep2.core/GetApplyRuleInElement grammar %)) 1) 
+        (= (ep2.core/GetApplyRuleInElement grammar %) [elem])
+      )
+      all_possible_symbols_with_one_value (vec (filter FilterFunction all_possible_symbols))
     ]
     (if (>= (count all_possible_symbols_with_one_value) 1)
-      (let
-        [
-          one_element_filter #(= (ep2.core/GetApplyRuleInElement grammar %) [elem])
-          all_possible_symbol_with_element (vec (filter one_element_filter all_possible_symbols_with_one_value))
-        ]
-        (if (>= (count all_possible_symbol_with_element) 1)
-          [grammar (get all_possible_symbol_with_element 0)]
-          (let
-            [
-              last_symbol (last all_possible_symbols)
-              new_symbol (str last_symbol 1)
-              new_grammar (ep4.core/AddRuleInGrammar grammar [elem] new_symbol)
-            ]
-            [new_grammar new_symbol]
-          )
-        )
-      )
+      [grammar (get all_possible_symbols_with_one_value 0)]
       (let
         [
           last_symbol (last all_possible_symbols)
@@ -699,8 +644,6 @@
   )
 )
 
-;; Fazer isso executar em loop até que todos os valores estares com duas variaveis ou um terminal 
-;; (ignorar variaveis unitárias ou valores vazios, isso deveria ser trabalho das funções anteriores resolverem isso)
 (defn AddNewVariablesToGrammar
   ([grammar start_symbol end_symbols] (AddNewVariablesToGrammar grammar start_symbol end_symbols 0 grammar))
   ([grammar start_symbol end_symbols index inital_grammar]
