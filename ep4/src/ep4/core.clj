@@ -627,7 +627,44 @@
 
 (defn TerminalVariableCorrection
   [grammar start_symbol end_symbols index]
-  grammar
+  (let
+    [
+      current_rule (get grammar index)
+      current_symbol (get current_rule 0)
+      current_element (get current_rule 1)
+
+      GetLastTwoElements (fn [elem](vec (subvec elem (- (count elem) 2))))
+      GetTerminalElements (fn [elem] (get (vec (filter #(contains? (set end_symbols) %) (GetLastTwoElements elem) ) ) 0))
+      terminal_value_curr_elem (GetTerminalElements current_element)
+      [new_grammar symbol_to_swap] (GetSymbolToSwap grammar [terminal_value_curr_elem])
+
+      SwapTerminalValuesInElement (fn [elem]
+        (let
+          [
+            last_two_elem (GetLastTwoElements elem)
+          ]
+          (if (= (get last_two_elem 0) terminal_value_curr_elem)
+            (vec (concat (get (split-at (- (count elem) 2) elem) 0) [symbol_to_swap (get last_two_elem 1)]))
+            (vec (concat (get (split-at (- (count elem) 2) elem) 0) [(get last_two_elem 0) symbol_to_swap]))
+          )
+        )
+      )
+
+
+      SwapCondition #(and 
+                      (GrammarCorrectionVerificationByElement grammar start_symbol end_symbols % 0) 
+                      (= (GetTerminalElements %) terminal_value_curr_elem)
+                    )
+      AddNewElementInRule (fn [rule] 
+                  (if (SwapCondition (get rule 1))
+                  [(get rule 0) (SwapTerminalValuesInElement (get rule 1))]
+                  rule
+      ))
+      corrected_grammar (vec (map AddNewElementInRule new_grammar))
+    ]
+    corrected_grammar
+    
+  )
 )
 
 (defn TwoTerminalsCorrection
@@ -692,8 +729,12 @@
 
       grammar_without_unit_values (RemoveAllUnitValues grammar_filted start_symbol_initial_value_corrected end_symbols)
 
+      grammar_with_new_swap_values (AddNewVariablesToGrammar grammar_without_unit_values start_symbol_initial_value_corrected end_symbols)
     ]
-    grammar_without_unit_values
+    [
+      (IsThatGrammarInChomskyNormalForm grammar_with_new_swap_values start_symbol_initial_value_corrected end_symbols)
+      grammar_with_new_swap_values
+    ]
   )
 )
 
@@ -718,7 +759,7 @@
 
   (def is_Grammar_in_chomsky_normal_form (IsThatGrammarInChomskyNormalForm grammar start_symbol end_symbols))
   (if (not is_Grammar_in_chomsky_normal_form)
-    (println "Regra gramatical normalizada: " (PerformeChomskyNormalization grammar start_symbol end_symbols))
+    (println "Regra gramatical normalizada: " (get (PerformeChomskyNormalization grammar start_symbol end_symbols) 1))
     (println "Regra gramatical jah esta normalizada")
   )
 

@@ -825,59 +825,86 @@
 (deftest GetSymbolToSwapTest
   (let
     [
-    grammar [
-      ["S0" ["A", "S", "A"]]
-      ["S0" ["a", "B"]]
-      ["S0" ["a"]]
-      ["S0" ["S", "A"]]
-      ["S0" ["A", "S"]]
-      ["S" ["A", "S", "A"]]
-      ["S" ["a", "B"]]
-      ["S" ["a"]]
-      ["S" ["S", "A"]]
-      ["S" ["A", "S"]]
-      ["A" ["b"]]
-      ["A" ["A", "S", "A"]]
-      ["A" ["a", "B"]]
-      ["A" ["a"]]
-      ["A" ["S", "A"]]
-      ["A" ["A", "S"]]
-      ["B" ["b"]]
-    ]
-    start_symbol "S0"
-    end_symbols ["a" "b"]
+      grammar [
+        ["S0" ["A", "S", "A"]]
+        ["S0" ["a", "B"]]
+        ["S0" ["a"]]
+        ["S0" ["S", "A"]]
+        ["S0" ["A", "S"]]
+        ["S" ["A", "S", "A"]]
+        ["S" ["a", "B"]]
+        ["S" ["a"]]
+        ["S" ["S", "A"]]
+        ["S" ["A", "S"]]
+        ["A" ["b"]]
+        ["A" ["A", "S", "A"]]
+        ["A" ["a", "B"]]
+        ["A" ["a"]]
+        ["A" ["S", "A"]]
+        ["A" ["A", "S"]]
+        ["B" ["b"]]
+      ]
+      start_symbol "S0"
+      end_symbols ["a" "b"]
 
-    [grammar_result_0 symbol_result_0] (ep4.core/GetSymbolToSwap grammar ["A", "S"] )
+      [grammar_result_0 symbol_result_0] (ep4.core/GetSymbolToSwap grammar ["A", "S"] )
 
-    expectec_grammar_result_0 [
-      ["S0" ["A", "S", "A"]]
-      ["S0" ["a", "B"]]
-      ["S0" ["a"]]
-      ["S0" ["S", "A"]]
-      ["S0" ["A", "S"]]
-      ["S" ["A", "S", "A"]]
-      ["S" ["a", "B"]]
-      ["S" ["a"]]
-      ["S" ["S", "A"]]
-      ["S" ["A", "S"]]
-      ["A" ["b"]]
-      ["A" ["A", "S", "A"]]
-      ["A" ["a", "B"]]
-      ["A" ["a"]]
-      ["A" ["S", "A"]]
-      ["A" ["A", "S"]]
-      ["B" ["b"]]
-      ["B1" ["A", "S"]]
-    ]
-    expectec_symbol_result_0 "B1"
+      expectec_grammar_result_0 [
+        ["S0" ["A", "S", "A"]]
+        ["S0" ["a", "B"]]
+        ["S0" ["a"]]
+        ["S0" ["S", "A"]]
+        ["S0" ["A", "S"]]
+        ["S" ["A", "S", "A"]]
+        ["S" ["a", "B"]]
+        ["S" ["a"]]
+        ["S" ["S", "A"]]
+        ["S" ["A", "S"]]
+        ["A" ["b"]]
+        ["A" ["A", "S", "A"]]
+        ["A" ["a", "B"]]
+        ["A" ["a"]]
+        ["A" ["S", "A"]]
+        ["A" ["A", "S"]]
+        ["B" ["b"]]
+        ["B1" ["A", "S"]]
+      ]
+      expectec_symbol_result_0 "B1"
 
-    [grammar_result_1 symbol_result_1] (ep4.core/GetSymbolToSwap expectec_grammar_result_0 ["A", "S"] )
+      [grammar_result_1 symbol_result_1] (ep4.core/GetSymbolToSwap expectec_grammar_result_0 ["a"] )
+
+      expectec_grammar_result_1 [
+        ["S0" ["A", "S", "A"]]
+        ["S0" ["a", "B"]]
+        ["S0" ["a"]]
+        ["S0" ["S", "A"]]
+        ["S0" ["A", "S"]]
+        ["S" ["A", "S", "A"]]
+        ["S" ["a", "B"]]
+        ["S" ["a"]]
+        ["S" ["S", "A"]]
+        ["S" ["A", "S"]]
+        ["A" ["b"]]
+        ["A" ["A", "S", "A"]]
+        ["A" ["a", "B"]]
+        ["A" ["a"]]
+        ["A" ["S", "A"]]
+        ["A" ["A", "S"]]
+        ["B" ["b"]]
+        ["B1" ["A", "S"]]
+        ["B11" ["a"]]
+      ]
+      expectec_symbol_result_1 "B11"
+
+      [grammar_result_2 symbol_result_2] (ep4.core/GetSymbolToSwap expectec_grammar_result_0 ["A", "S"] )
     ]
     (testing "Testando a função GetSymbolToSwap"
       (is (= grammar_result_0 expectec_grammar_result_0))
       (is (= symbol_result_0 expectec_symbol_result_0))
-      (is (= grammar_result_1 expectec_grammar_result_0))
-      (is (= symbol_result_1 expectec_symbol_result_0))
+      (is (= grammar_result_1 expectec_grammar_result_1))
+      (is (= symbol_result_1 expectec_symbol_result_1))
+      (is (= grammar_result_2 expectec_grammar_result_0))
+      (is (= symbol_result_2 expectec_symbol_result_0))
     )
   )
 )
@@ -944,66 +971,177 @@
   )
 )
 
-;; (deftest AddNewVariablesToGrammarTest
-;;   (let
-;;     [
+(deftest TerminalVariableCorrectionTest
+  (let
+    [
 
-;;       grammar [ 
-;;         ["S0" ["A", "S", "A"]]
-;;         ["S0" ["a", "B"]]
-;;         ["S0" ["a"]]
-;;         ["S0" ["S", "A"]]
-;;         ["S0" ["A", "S"]]
-;;         ["S" ["A", "S", "A"]]
-;;         ["S" ["a", "B"]]
-;;         ["S" ["a"]]
-;;         ["S" ["S", "A"]]
-;;         ["S" ["A", "S"]]
-;;         ["A" ["b"]]
-;;         ["A" ["A", "S", "A"]]
-;;         ["A" ["a", "B"]]
-;;         ["A" ["a"]]
-;;         ["A" ["S", "A"]]
-;;         ["A" ["A", "S"]]
-;;         ["B" ["b"]]
-;;       ]
+      grammar [
+        ["S0" ["A", "B1"]]
+        ["S0" ["a", "B"]]
+        ["S0" ["a"]]
+        ["S0" ["S", "A"]]
+        ["S0" ["A", "S"]]
+        ["S" ["A", "B1"]]
+        ["S" ["a", "B"]]
+        ["S" ["a"]]
+        ["S" ["S", "A"]]
+        ["S" ["A", "S"]]
+        ["A" ["b"]]
+        ["A" ["A", "B1"]]
+        ["A" ["a", "B"]]
+        ["A" ["a"]]
+        ["A" ["S", "A"]]
+        ["A" ["A", "S"]]
+        ["B" ["b"]]        
+        ["B1" ["S", "A"] ]
+      ]
       
-;;       start_symbol "S0"
+      start_symbol "S0"
 
-;;       end_symbols ["a" "b"]
+      end_symbols ["a" "b"]
 
-;;       result_0 (ep4.core/AddNewVariablesToGrammar grammar start_symbol end_symbols)
+      result_0 (ep4.core/TerminalVariableCorrection grammar start_symbol end_symbols 1)
 
-;;       expectec_result_0 [
-;;         ["S0" ["A", "A1"]]
-;;         ["S0" ["A2", "B"]]
-;;         ["S0" ["a"]]
-;;         ["S0" ["S", "A"]]
-;;         ["S0" ["A", "S"]]
+      expectec_result_0 [
+        ["S0" ["A", "B1"]]
+        ["S0" ["B11", "B"]]
+        ["S0" ["a"]]
+        ["S0" ["S", "A"]]
+        ["S0" ["A", "S"]]
+        ["S" ["A", "B1"]]
+        ["S" ["B11", "B"]]
+        ["S" ["a"]]
+        ["S" ["S", "A"]]
+        ["S" ["A", "S"]]
+        ["A" ["b"]]
+        ["A" ["A", "B1"]]
+        ["A" ["B11", "B"]]
+        ["A" ["a"]]
+        ["A" ["S", "A"]]
+        ["A" ["A", "S"]]
+        ["B" ["b"]]        
+        ["B1" ["S", "A"] ]
+        ["B11" ["a"] ]
+      ]
 
-;;         ["S" ["A", "A1"]]
-;;         ["S" ["A2", "B"]]
-;;         ["S" ["a"]]
-;;         ["S" ["S", "A"]]
-;;         ["S" ["A", "S"]]
+    ]
+    (testing "Testando a função TerminalVariableCorrection"
+      (is (= result_0 expectec_result_0))
+    )
+  )
+)
 
-;;         ["A" ["b"]]
-;;         ["A" ["A", "A1"]]
-;;         ["A" ["A2", "B"]]
-;;         ["A" ["a"]]
-;;         ["A" ["S", "A"]]
-;;         ["A" ["A", "S"]]
+(deftest AddNewVariablesToGrammarTest
+  (let
+    [
 
-;;         ["B" ["b"]]
+      grammar [ 
+        ["S0" ["A", "S", "A"]]
+        ["S0" ["a", "B"]]
+        ["S0" ["a"]]
+        ["S0" ["S", "A"]]
+        ["S0" ["A", "S"]]
+        ["S" ["A", "S", "A"]]
+        ["S" ["a", "B"]]
+        ["S" ["a"]]
+        ["S" ["S", "A"]]
+        ["S" ["A", "S"]]
+        ["A" ["b"]]
+        ["A" ["A", "S", "A"]]
+        ["A" ["a", "B"]]
+        ["A" ["a"]]
+        ["A" ["S", "A"]]
+        ["A" ["A", "S"]]
+        ["B" ["b"]]
+      ]
+      
+      start_symbol "S0"
 
-;;         ["A1" ["S" "A"]]
+      end_symbols ["a" "b"]
 
-;;         ["A2" ["a"]]
-;;       ]
+      result_0 (ep4.core/AddNewVariablesToGrammar grammar start_symbol end_symbols)
 
-;;     ]
-;;     (testing "Testando a função AddNewVariablesToGrammar"
-;;       (is (= result_0 expectec_result_0))
-;;     )
-;;   )
-;; )
+      expectec_result_0 [
+        ["S0" ["A", "B1"]]
+        ["S0" ["B11", "B"]]
+        ["S0" ["a"]]
+        ["S0" ["S", "A"]]
+        ["S0" ["A", "S"]]
+
+        ["S" ["A", "B1"]]
+        ["S" ["B11", "B"]]
+        ["S" ["a"]]
+        ["S" ["S", "A"]]
+        ["S" ["A", "S"]]
+
+        ["A" ["b"]]
+        ["A" ["A", "B1"]]
+        ["A" ["B11", "B"]]
+        ["A" ["a"]]
+        ["A" ["S", "A"]]
+        ["A" ["A", "S"]]
+
+        ["B" ["b"]]
+
+        ["B1" ["S" "A"]]
+
+        ["B11" ["a"]]
+      ]
+
+    ]
+    (testing "Testando a função AddNewVariablesToGrammar"
+      (is (= result_0 expectec_result_0))
+    )
+  )
+)
+
+;; --------------------------------------
+;; Chomsky Normalization
+;; --------------------------------------
+
+(deftest PerformeChomskyNormalizationTest
+  (let 
+    [
+      grammar [
+        ["S" ["A", "S", "A"]]
+        ["S" ["a", "B"]]
+        ["A" ["B"]]
+        ["A" ["S"]]
+        ["B" ["b"]]
+        ["B" ["ε"]]
+      ]
+      
+      start_symbol "S"
+
+      end_symbols ["a" "b"]
+
+      result0 (ep4.core/PerformeChomskyNormalization grammar start_symbol end_symbols)
+
+      expectec_grammar_result0 [
+        ["S0" ["A", "B1"]]
+        ["S0" ["B11", "B"]]
+        ["S0" ["a"]]
+        ["S0" ["A", "S"]]
+        ["S0" ["S", "A"]]
+        ["S" ["A", "B1"]]
+        ["S" ["B11", "B"]]
+        ["S" ["a"]]
+        ["S" ["A", "S"]]
+        ["S" ["S", "A"]]
+        ["A" ["b"]]
+        ["A" ["A", "B1"]]
+        ["A" ["B11", "B"]]
+        ["A" ["a"]]
+        ["A" ["A", "S"]]
+        ["A" ["S", "A"]]
+        ["B" ["b"]]
+        ["B1" ["S" "A"]]
+        ["B11" ["a"]]
+        ]
+    ]
+    (testing "Testando a função PerformeChomskyNormalization"
+      (is (= true (get result0 0)))
+      (is (= expectec_grammar_result0 (get result0 1)) )
+    )
+  )
+)
