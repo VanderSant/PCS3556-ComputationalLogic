@@ -1,7 +1,8 @@
 # Gramática em Forma normal de Chomsky
 
-To do list:
+Funcionamento do algorimo:
 
+**principios**
 - Todas as produções da gramática devem ter a forma A → BC ou A → a, onde A, B e C são símbolos não-terminais e a é um símbolo terminal.
 
 (a varivel deriva em duas variaveis ou a veriavel deriva em um terminal)
@@ -17,7 +18,8 @@ To do list:
 
 - Todos os símbolos não-terminais da gramática devem ser alcançáveis a partir da regra inicial.
 
-algoritmo:
+**algoritmo**:
+
     - Retirar o símbolo inicial do lado direito
     - Eliminar as produções "vazias" de baixo para cima
     - Eliminar as regras unitárias (que produzem apenas uma variaval) de cima para baixo
@@ -25,3 +27,8 @@ algoritmo:
         - produzem variaval e terminais juntos
         - produzem mais de duas variaveis
         - produzem mais de um terminal
+
+
+O código desenvolvido encontra-se no arquivo [core.clj](./src/ep4/core.clj)
+
+Todas as funções principais foram testadas e se encontram no arquivo [core_test.clj](./test/ep4/core_test.clj)

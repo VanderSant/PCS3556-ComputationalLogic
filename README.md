@@ -67,6 +67,9 @@ lein test
 
 Para executar o teste do ep4:
 ```sh
+cd ep2
+lein install
+cd ..
 cd ep4
 lein test
 ```
