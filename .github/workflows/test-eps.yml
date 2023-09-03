@@ -6,7 +6,7 @@ jobs:
   test:
     name: Test
     runs-on: ubuntu-20.04
-    environment: production
+    environment: Production
 
     steps:
     - name: Checkout
