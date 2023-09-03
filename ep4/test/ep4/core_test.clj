@@ -2,8 +2,6 @@
   (:require [clojure.test :refer :all]
             [ep4.core :refer :all]))
 
-;; functions tests --------------------
-
 ;; --------------------------------------
 ;; General functions tests
 ;; --------------------------------------
@@ -1102,7 +1100,7 @@
 (deftest PerformeChomskyNormalizationTest
   (let 
     [
-      grammar [
+      grammar0 [
         ["S" ["A", "S", "A"]]
         ["S" ["a", "B"]]
         ["A" ["B"]]
@@ -1110,38 +1108,51 @@
         ["B" ["b"]]
         ["B" ["ε"]]
       ]
-      
-      start_symbol "S"
-
-      end_symbols ["a" "b"]
-
-      result0 (ep4.core/PerformeChomskyNormalization grammar start_symbol end_symbols)
-
+      start_symbol0 "S"
+      end_symbols0 ["a" "b"]
+      result0 (ep4.core/PerformeChomskyNormalization grammar0 start_symbol0 end_symbols0)
       expectec_grammar_result0 [
-        ["S0" ["A", "B1"]]
-        ["S0" ["B11", "B"]]
-        ["S0" ["a"]]
-        ["S0" ["A", "S"]]
-        ["S0" ["S", "A"]]
-        ["S" ["A", "B1"]]
-        ["S" ["B11", "B"]]
-        ["S" ["a"]]
-        ["S" ["A", "S"]]
-        ["S" ["S", "A"]]
-        ["A" ["b"]]
-        ["A" ["A", "B1"]]
-        ["A" ["B11", "B"]]
-        ["A" ["a"]]
-        ["A" ["A", "S"]]
-        ["A" ["S", "A"]]
+          ["S0" ["A", "B1"]]
+          ["S0" ["B11", "B"]]
+          ["S0" ["a"]]
+          ["S0" ["A", "S"]]
+          ["S0" ["S", "A"]]
+          ["S" ["A", "B1"]]
+          ["S" ["B11", "B"]]
+          ["S" ["a"]]
+          ["S" ["A", "S"]]
+          ["S" ["S", "A"]]
+          ["A" ["b"]]
+          ["A" ["A", "B1"]]
+          ["A" ["B11", "B"]]
+          ["A" ["a"]]
+          ["A" ["A", "S"]]
+          ["A" ["S", "A"]]
+          ["B" ["b"]]
+          ["B1" ["S" "A"]]
+          ["B11" ["a"]]
+        ]
+
+      grammar1 [
+        ["S" ["B", "a", "d"]]
         ["B" ["b"]]
-        ["B1" ["S" "A"]]
-        ["B11" ["a"]]
+      ]
+      start_symbol1 "S"
+      end_symbols1 ["a" "b" "d"]
+      result1 (ep4.core/PerformeChomskyNormalization grammar1 start_symbol1 end_symbols1)
+      expectec_grammar_result1 [
+          ["S" ["B", "B111"]]
+          ["B" ["b"]]
+          ["B1" ["a"]]
+          ["B11" ["d"]]
+          ["B111" ["B1", "B11"] ] 
         ]
     ]
     (testing "Testando a função PerformeChomskyNormalization"
       (is (= true (get result0 0)))
       (is (= expectec_grammar_result0 (get result0 1)) )
+      (is (= true (get result1 0)))
+      (is (= expectec_grammar_result1 (get result1 1)) )
     )
   )
 )

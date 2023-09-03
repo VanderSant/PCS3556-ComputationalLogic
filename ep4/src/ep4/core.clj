@@ -663,27 +663,57 @@
       corrected_grammar (vec (map AddNewElementInRule new_grammar))
     ]
     corrected_grammar
-    
   )
 )
 
 (defn TwoTerminalsCorrection
   [grammar start_symbol end_symbols index]
-  grammar
+  (let
+    [
+      current_rule (get grammar index)
+      current_symbol (get current_rule 0)
+      current_element (get current_rule 1)
+
+      GetLastTwoElements (fn [elem](vec (subvec elem (- (count elem) 2))))
+      ;; GetTerminalElements (fn [elem] (vec (filter #(contains? (set end_symbols) %) (GetLastTwoElements elem) ) ) )
+      terminals_value_curr_elem (GetLastTwoElements current_element)
+      [inter_grammar symbol0_to_swap] (GetSymbolToSwap grammar [(get terminals_value_curr_elem 0)])
+      [new_grammar symbol1_to_swap] (GetSymbolToSwap inter_grammar [(get terminals_value_curr_elem 1)])
+
+      SwapTerminalValuesInElement (fn [elem]
+        (vec (concat (get (split-at (- (count elem) 2) elem) 0) [symbol0_to_swap symbol1_to_swap]))
+      )
+
+      SwapCondition #(and 
+                      (GrammarCorrectionVerificationByElement grammar start_symbol end_symbols % 2) 
+                      (= (GetLastTwoElements %) terminals_value_curr_elem)
+                    )
+      AddNewElementInRule (fn [rule] 
+                  (if (SwapCondition (get rule 1))
+                  [(get rule 0) (SwapTerminalValuesInElement (get rule 1))]
+                  rule
+      ))
+      corrected_grammar (vec (map AddNewElementInRule new_grammar))
+    ]
+    corrected_grammar
+  )
 )
 
 ;; Fazer isso executar em loop até que todos os valores estares com duas variaveis ou um terminal 
 ;; (ignorar variaveis unitárias ou valores vazios, isso deveria ser trabalho das funções anteriores resolverem isso)
 (defn AddNewVariablesToGrammar
-  ([grammar start_symbol end_symbols] (AddNewVariablesToGrammar grammar start_symbol end_symbols 0))
-  ([grammar start_symbol end_symbols index]
+  ([grammar start_symbol end_symbols] (AddNewVariablesToGrammar grammar start_symbol end_symbols 0 grammar))
+  ([grammar start_symbol end_symbols index inital_grammar]
     (let 
       [
         num_of_rules (count grammar)
         is_to_continue (>= num_of_rules index)
       ]
         (if (not is_to_continue)
-          grammar
+          (if (not (= grammar inital_grammar))
+            (AddNewVariablesToGrammar grammar start_symbol end_symbols 0 grammar)
+            grammar
+          )
           (let
             [
               current_rule (get grammar index)
@@ -695,12 +725,12 @@
               is_to_apply_double_terminal_correction (GrammarCorrectionVerificationByIndex grammar start_symbol end_symbols index 2)
             ]
               (if is_to_apply_terminal_variable_correction
-                (AddNewVariablesToGrammar (TerminalVariableCorrection grammar start_symbol end_symbols index) start_symbol end_symbols (+ index 1))
+                (AddNewVariablesToGrammar (TerminalVariableCorrection grammar start_symbol end_symbols index) start_symbol end_symbols (+ index 1) inital_grammar)
                 (if is_to_apply_double_variable_correction
-                  (AddNewVariablesToGrammar (TwoVariablesCorrection grammar start_symbol end_symbols index) start_symbol end_symbols (+ index 1))
+                  (AddNewVariablesToGrammar (TwoVariablesCorrection grammar start_symbol end_symbols index) start_symbol end_symbols (+ index 1) inital_grammar)
                   (if is_to_apply_double_terminal_correction
-                    (AddNewVariablesToGrammar (TwoTerminalsCorrection grammar start_symbol end_symbols index) start_symbol end_symbols (+ index 1))
-                    grammar
+                    (AddNewVariablesToGrammar (TwoTerminalsCorrection grammar start_symbol end_symbols index) start_symbol end_symbols (+ index 1) inital_grammar)
+                    (AddNewVariablesToGrammar grammar start_symbol end_symbols (+ index 1) inital_grammar)
                   )
                 )
               )
@@ -762,5 +792,4 @@
     (println "Regra gramatical normalizada: " (get (PerformeChomskyNormalization grammar start_symbol end_symbols) 1))
     (println "Regra gramatical jah esta normalizada")
   )
-
 )
